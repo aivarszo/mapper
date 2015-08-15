@@ -23,6 +23,8 @@
 #ifndef _OPENORIENTEERING_OCD_FILE_FORMAT_P_
 #define _OPENORIENTEERING_OCD_FILE_FORMAT_P_
 
+#define M_PI 3.14
+
 #include <QLocale>
 #include <QTextCodec>
 

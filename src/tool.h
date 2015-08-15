@@ -68,7 +68,7 @@ public:
 	/**
 	 * @brief Types of tool.
 	 */
-	enum Type
+	typedef enum
 	{
 		EditPoint     = 1,
 		EditLine      = 2,
@@ -76,11 +76,11 @@ public:
 		DrawPath      = 4,
 		DrawCircle    = 5,
 		DrawRectangle = 6,
-		DrawText      = 7,
+		DrawTextT     = 7,
 		DrawFreehand  = 8,
 		Pan           = 9,
 		Other         = 0
-	};
+	} Type;
 	
 	/**
 	 * @brief Constructs a new MapEditorTool.
@@ -244,7 +244,7 @@ public:
 	 * 
 	 * @todo This shall be rewritten as virtual/reimplemented function.
 	 */
-	bool isDrawTool() const;
+	bool isDrawTool();
 	
 	/**
 	 * @brief Returns the point handles utility for this tool.

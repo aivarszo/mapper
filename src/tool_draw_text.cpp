@@ -50,7 +50,7 @@
 QCursor* DrawTextTool::cursor = NULL;
 
 DrawTextTool::DrawTextTool(MapEditorController* editor, QAction* tool_button)
-: MapEditorTool(editor, DrawText, tool_button)
+: MapEditorTool(editor, DrawTextT, tool_button)
 , drawing_symbol(editor->activeSymbol())
 , dragging(false)
 , preview_text(NULL)

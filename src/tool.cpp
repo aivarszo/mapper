@@ -193,19 +193,24 @@ QWidget* MapEditorTool::window() const
 	return editor->getWindow();
 }
 
-bool MapEditorTool::isDrawTool() const
+bool MapEditorTool::isDrawTool()
 {
-	switch (tool_type)
+	Type b=tool_type;
+
+	switch (b)
 	{
-	case DrawPoint:
-	case DrawPath:
-	case DrawCircle:
-	case DrawRectangle:
-	case DrawFreehand:
-	case DrawText:      return true;
+		case DrawPoint:
+		case DrawPath:
+		case DrawCircle:
+		case DrawRectangle:
+		case DrawFreehand:
+		case DrawTextT:
+			return true;
 		
-	default:            return false;
+		default:
+			return false;
 	}
+	return false;
 }
 
 void MapEditorTool::setStatusBarText(const QString& text)
