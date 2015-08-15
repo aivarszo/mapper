@@ -93,6 +93,8 @@
 #include "template_track.h"
 #include "template_position_dock_widget.h"
 #include "template_tool_paint.h"
+#include "course_dock_widget.h"
+#include "course_edit_dock_widget.h"
 #include "tool.h"
 #include "tool_boolean.h"
 #include "tool_cut.h"
@@ -171,6 +173,7 @@ MapEditorController::MapEditorController(OperatingMode mode, Map* map)
 	color_dock_widget = NULL;
 	symbol_dock_widget = NULL;
 	template_dock_widget = NULL;
+    course_dock_widget = NULL;
 	tags_dock_widget = NULL;
 	
 	statusbar_zoom_frame = NULL;
@@ -207,6 +210,7 @@ MapEditorController::~MapEditorController()
 	delete color_dock_widget;
 	delete symbol_dock_widget;
 	delete template_dock_widget;
+    delete course_dock_widget;
 	delete tags_dock_widget;
 	delete cut_hole_menu;
 	delete mappart_merge_act;
@@ -385,6 +389,12 @@ void MapEditorController::removeTemplatePositionDockWidget(Template* temp)
 	int num_deleted = template_position_widgets.remove(temp);
 	Q_ASSERT(num_deleted == 1);
 	Q_UNUSED(num_deleted);
+}
+
+void MapEditorController::addcourseEditDockWidget(int rn, courseWidget* temp)
+{
+    courseEditDockWidget* course_edit_dock_widget = new courseEditDockWidget(rn, temp,this, window);
+    addFloatingDockWidget(course_edit_dock_widget);
 }
 
 void MapEditorController::showPopupWidget(QWidget* child_widget, const QString& title)
@@ -765,6 +775,10 @@ void MapEditorController::createActions()
 	open_template_act = newAction("opentemplate", tr("Open template..."), this, SLOT(openTemplateClicked()), NULL, QString::null, "templates_menu.html");
 	reopen_template_act = newAction("reopentemplate", tr("Reopen template..."), this, SLOT(reopenTemplateClicked()), NULL, QString::null, "templates_menu.html");
 	
+    course_window_act = newCheckAction("coursewindow", tr("Course setup window"), this, SLOT(showcourseWindow(bool)), "window-new", tr("Show/Hide the course window"), "course_menu.html");
+    open_course_act = newAction("opencoursefile", tr("Open course file..."), this, SLOT(opencourseClicked()), NULL, QString::null, "course_menu.html");
+    save_course_act = newAction("savecoursefile", tr("Save course file..."), this, SLOT(savecourseClicked()), NULL, QString::null, "course_menu.html");
+
 	tags_window_act = newCheckAction("tagswindow", tr("Tag editor"), this, SLOT(showTagsWindow(bool)), "window-new", tr("Show/Hide the tag editor window"), "tag_editor.html");
 	
 	edit_tool_act = newToolAction("editobjects", tr("Edit objects"), this, SLOT(editToolClicked()), "tool-edit.png", QString::null, "toolbars.html#tool_edit_point");
@@ -1013,6 +1027,13 @@ void MapEditorController::createMenuAndToolbars()
 	template_menu->addAction(open_template_act);
 	template_menu->addAction(reopen_template_act);
 	
+    // Course menu
+    QMenu* course_menu = window->menuBar()->addMenu(tr("&Courses"));
+    course_menu->addAction(course_window_act);
+    course_menu->addSeparator();
+    course_menu->addAction(open_course_act);
+    course_menu->addAction(save_course_act);
+
 	// Extend and activate general toolbar
 	QToolBar* main_toolbar = window->getGeneralToolBar();
 #ifdef QT_PRINTSUPPORT_LIB
@@ -1784,6 +1805,189 @@ void MapEditorController::closedTemplateAvailabilityChanged()
 {
 	if (reopen_template_act)
 		reopen_template_act->setEnabled(map->getNumClosedTemplates() > 0);
+}
+
+void MapEditorController::showcourseWindow(bool show)
+{
+    if (!course_dock_widget)
+    {
+        courseWidget* course_widget = new courseWidget(map, main_view, this, course_dock_widget);
+        course_dock_widget = new EditorDockWidget(tr("Courses"), course_window_act, this, window);
+        course_dock_widget->setWidget(course_widget);
+        course_dock_widget->setObjectName("Course dock widget");
+        if (!window->restoreDockWidget(course_dock_widget))
+            window->addDockWidget(Qt::RightDockWidgetArea, course_dock_widget, Qt::Vertical);
+    }
+
+    course_window_act->setChecked(show);
+    course_dock_widget->setVisible(show);
+}
+
+void MapEditorController::opencourseClicked()
+{
+    QString inputfilepath = courseWidget::showOpencourseDialog(window, this);
+    if (inputfilepath.isEmpty())
+        return;
+
+    QFile inputFile(inputfilepath);
+
+    if (!inputFile.open(QIODevice::ReadOnly))
+    {
+        return;
+    }
+
+    showcourseWindow(true);
+    QXmlStreamReader reader(&inputFile);
+    int n_cp=0;
+    QStringList *t1=new QStringList();
+    while (!reader.atEnd())
+    {
+        reader.readNext();
+        if (reader.isEndElement()) continue;
+        if (reader.name() == "cp")
+        {
+            while (!reader.atEnd())
+            {
+                reader.readNext();
+                if ((reader.name()=="cp") && reader.isEndElement())
+                {
+                    break;
+                }
+                if (reader.isEndElement()) continue;
+                if (reader.name() == "cp_num")
+                {
+                    reader.readElementText();
+                }
+                else if (reader.name() == "cp_cod")
+                {
+                    t1->push_back(reader.readElementText());
+                }
+                else if (reader.name() == "cp_x")
+                {
+                    t1->push_back(reader.readElementText());
+                }
+                else if (reader.name() == "cp_y")
+                {
+                    t1->push_back(reader.readElementText());
+                }
+                else if (reader.name() == "cr_x")
+                {
+                    t1->push_back(reader.readElementText());
+                }
+                else if (reader.name() == "cr_y")
+                {
+                    t1->push_back(reader.readElementText());
+                }
+                else if (reader.name() == "cd_C")
+                {
+                    t1->push_back(reader.readElementText());
+                }
+                else if (reader.name() == "cd_D")
+                {
+                    t1->push_back(reader.readElementText());
+                }
+                else if (reader.name() == "cd_E")
+                {
+                    t1->push_back(reader.readElementText());
+                }
+                else if (reader.name() == "cd_F")
+                {
+                    t1->push_back(reader.readElementText());
+                }
+                else if (reader.name() == "cd_G")
+                {
+                    t1->push_back(reader.readElementText());
+                }
+                else if (reader.name() == "cd_H")
+                {
+                    t1->push_back(reader.readElementText());
+                }
+            }
+        }
+        else if(reader.name() == "course")
+        {
+            if (t1->size()>0)
+            {
+//                map->setcontrolpoints(t1,n_cp);
+                map->addcoursefromfile(t1);
+                qobject_cast<courseWidget*>(course_dock_widget->widget())->addRow();
+                t1=new QStringList();
+                n_cp++;
+            }
+            t1->push_back(reader.attributes().value("name").toString());
+        }
+    }
+//    map->setcontrolpoints(t1,n_cp);
+    reader.clear();
+    inputFile.close();
+    map->addcoursefromfile(t1);
+    qobject_cast<courseWidget*>(course_dock_widget->widget())->addRow();
+}
+
+void MapEditorController::savecourseClicked()
+{
+    if (map->getNumcourses()>0)
+    {
+        QFileInfo current(getWindow()->currentPath());
+        QString save_directory = current.canonicalPath();
+        if (save_directory.isEmpty())
+        {
+            // revert to least recently used directory or home directory.
+            QSettings settings;
+            save_directory = settings.value("openFileDirectory", QDir::homePath()).toString();
+        }
+
+        QString filters=QString(".xml");
+
+        QString filter = NULL;
+        QString outputfilepath = QFileDialog::getSaveFileName(window, tr("Save courses"), save_directory, filters, &filter);
+
+        if (outputfilepath.isEmpty())
+            return;
+
+        if (!outputfilepath.endsWith(QString(".xml"), Qt::CaseInsensitive))
+            outputfilepath.append(".xml");
+
+        QFile outputFile(outputfilepath);
+
+        if (!outputFile.open(QIODevice::WriteOnly))
+        {
+            return;
+        }
+
+        QXmlStreamWriter writer(&outputFile);
+        writer.setAutoFormatting(true);
+        writer.writeStartDocument();
+        writer.writeStartElement("courses");
+        for (int i=0;i<map->getNumcourses();i++)
+        {
+            writer.writeStartElement("course");
+            writer.writeAttribute("name", map->getcontrolpoints(i)->at(0));
+            int n_cp=0;
+            for (int j=1;j<map->getcontrolpoints(i)->size();j+=COURSE_ITEMS)
+            {
+                writer.writeStartElement("cp");
+                writer.writeTextElement("cp_num", QString::number(n_cp));
+                writer.writeTextElement("cp_cod", map->getcontrolpoints(i)->at(j));
+                n_cp++;
+                writer.writeTextElement("cp_x", map->getcontrolpoints(i)->at(j+1));
+                writer.writeTextElement("cp_y", map->getcontrolpoints(i)->at(j+2));
+                writer.writeTextElement("cr_x", map->getcontrolpoints(i)->at(j+3));
+                writer.writeTextElement("cr_y", map->getcontrolpoints(i)->at(j+4));
+                writer.writeTextElement("cd_C", map->getcontrolpoints(i)->at(j+5));
+                writer.writeTextElement("cd_D", map->getcontrolpoints(i)->at(j+6));
+                writer.writeTextElement("cd_E", map->getcontrolpoints(i)->at(j+7));
+                writer.writeTextElement("cd_F", map->getcontrolpoints(i)->at(j+8));
+                writer.writeTextElement("cd_G", map->getcontrolpoints(i)->at(j+9));
+                writer.writeTextElement("cd_H", map->getcontrolpoints(i)->at(j+10));
+                writer.writeEndElement();
+            }
+            writer.writeEndElement();
+        }
+        writer.writeEndElement();
+        writer.writeEndDocument();
+        outputFile.close();
+    }
 }
 
 void MapEditorController::showTagsWindow(bool show)

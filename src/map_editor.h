@@ -31,6 +31,10 @@
 #include "gui/main_window_controller.h"
 #include "map.h"
 
+#include "course_dock_widget.h"
+#include "course_edit_dock_widget.h"
+
+
 QT_BEGIN_NAMESPACE
 class QComboBox;
 class QDockWidget;
@@ -180,6 +184,7 @@ public:
 	inline TemplatePositionDockWidget* getTemplatePositionDockWidget(Template* temp) const {return template_position_widgets.value(temp);}
 	/** Adds a template position dock widget for the given template. */
 	void addTemplatePositionDockWidget(Template* temp);
+    void addcourseEditDockWidget(int rn, courseWidget* temp);
 	/**
 	 * Removes the template position dock widget for the template.
 	 * 
@@ -309,7 +314,11 @@ public slots:
 	void reopenTemplateClicked();
 	/** Updates the reopen_template_act enabled state. */
 	void closedTemplateAvailabilityChanged();
-	
+
+    void opencourseClicked();
+    void savecourseClicked();
+    void showcourseWindow(bool show);
+
 	/** Shows or hides the tags editor dock widget. */
 	void showTagsWindow(bool show);
 	
@@ -639,7 +648,12 @@ private:
 	QAction* open_template_act;
 	QAction* reopen_template_act;
 	
-	QAction* tags_window_act;
+    QAction* course_window_act;
+    QAction* open_course_act;
+    QAction* save_course_act;
+    EditorDockWidget* course_dock_widget;
+
+    QAction* tags_window_act;
 	EditorDockWidget* tags_dock_widget;
 	
 	QAction* edit_tool_act;

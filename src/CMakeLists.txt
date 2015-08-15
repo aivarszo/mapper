@@ -96,6 +96,9 @@ set(Mapper_Common_SRCS
  template_tool_move.cpp
  template_tool_paint.cpp
 
+ course_dock_widget.cpp
+ course_edit_dock_widget.cpp
+
  tool.cpp
  tool_base.cpp
  tool_helpers.cpp
@@ -215,6 +218,8 @@ set(Mapper_Common_MOC_INPUT
  template_position_dock_widget.h
  template_tool_move.h
  template_tool_paint.h
+ course_dock_widget.h
+ course_edit_dock_widget.h
  tool.h
  tool_base.h
  tool_cut.h

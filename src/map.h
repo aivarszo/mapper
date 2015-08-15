@@ -640,7 +640,29 @@ public:
 	bool reloadClosedTemplate(int i, int target_pos, QWidget* dialog_parent,
 							  MapView* view, const QString& map_path = QString());
 	
-	
+    //Courses
+    void setcourseAreaDirty(Object* temp, QRectF area, int pixel_border);
+    void setcourseAreaDirty(int i);
+    void addcourse(Object* temp);
+    void addcoursefromfile(QStringList *temp);
+    void removecourse(int pos);
+    void setcoursesDirty();
+    inline int getNumcourses() const {return courses.size();}
+    inline Object* getcourse(int i) {if (i>=0) return courses[i].course; else return NULL;}
+    inline const Object* getcourse(int i) const {if (i>=0) return courses[i].course; else return NULL;}
+    void setcourse(Object* temp, int pos);
+    void setcontrolpoints(QStringList* temp, int pos);
+    inline void setcontrolpointstext(QString temp, int i, int j) {courses[i].control_points->replace(j,temp);}
+    QStringList* getcontrolpoints(int i);
+    int findcourseIndex(const Object* temp) const;
+    inline void setcoursecp(Object *temp,int i, int j) {courses[i].coursecp[j]=temp;};
+    void clearcoursecp(int i);
+    inline int getNumcoursecp(int i) const {return courses[i].coursecp.size();}
+    inline Object* getcoursecp(int i, int j) {if (i>=0) return courses[i].coursecp.at(j); else return NULL;}
+    Symbol* getSymbolByTextNumber(QString ts);
+    void courseAdded(int pos, const Object* temp);
+//    void courseChanged(int pos, const Object* temp);
+
 	// Undo & Redo
 	
 	/**
@@ -1312,7 +1334,19 @@ private:
 	typedef std::vector<Template*> TemplateVector;
 	typedef std::vector<MapPart*> PartVector;
 	typedef std::vector<MapWidget*> WidgetVector;
+
+	typedef std::vector<Object*> courseVector;
+    typedef std::vector<QStringList*> cpVector;
 	
+    typedef struct
+    {
+        Object *course;
+        courseVector coursecp;
+        QStringList *control_points;
+    } onecourse;
+
+    QList<onecourse> courses;
+
 	class MapColorSet : public QSharedData
 	{
 	public:
@@ -1397,6 +1431,8 @@ private:
 	bool objects_dirty;				//    ... for the objects?
 	bool other_dirty;				//    ... for any other settings?
 	bool unsaved_changes;			// are there unsaved changes for any component?
+
+	bool courses_dirty;             //    ... for the courses?
 	
 	// Static
 	

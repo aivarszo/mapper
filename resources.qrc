@@ -109,6 +109,11 @@
   <file>images/view-zoom-out.png</file>
   <file>images/window-new.png</file>
   <file>images/mapper-icon/Mapper-128.png</file>
+  <file>images/insert-cp-cod.png</file>
+  <file>images/insert-cp-num.png</file>
+  <file>images/insert-cp-numcod.png</file>
+  <file>images/clear-cp.png</file>
+  <file>images/cp_descr.png</file>
 
   <file alias="help/tip-of-the-day/tips.txt">help/tip-of-the-day/tips_en.txt</file>
  </qresource>
