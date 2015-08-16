@@ -27,6 +27,7 @@
 #include <QColor>
 #include <QString>
 #include <QHash>
+#include <QMetaType>
 
 class Map;
 class MapColor;
@@ -422,6 +423,7 @@ bool operator==(const MapColor& lhs, const MapColor& rhs);
 
 /** Returns true iff the MapColor differ in at least one components. */
 bool operator!=(const MapColor& lhs, const MapColor& rhs);
+
 
 
 /**

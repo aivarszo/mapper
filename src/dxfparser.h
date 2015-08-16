@@ -26,6 +26,7 @@
 #include <QColor>
 #include <QFont>
 #include <QRectF>
+#include <QIODevice>
 
 struct DXFCoordinate
 {

@@ -23,6 +23,7 @@
 #define _OPENORIENTEERING_MAP_GRID_H_
 
 #include <QColor>
+#include <QIODevice>
 
 QT_BEGIN_NAMESPACE
 class QPainter;
