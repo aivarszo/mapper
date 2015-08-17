@@ -22,6 +22,7 @@
 #include "course_edit_dock_widget.h"
 
 #include "core/georeferencing.h"
+#include "core/path_coord.h"
 #include "gui/main_window.h"
 #include "gui/widgets/segmented_button_layout.h"
 #include "map.h"
@@ -188,7 +189,6 @@ void courseWidget::coursecpchanged()
             {
                 if (selsym==map->getcoursecp(i,j))
                 {
-//                    map->getcoursecp(i,j)->asText()->setBox(map->getFirstSelectedObject()->getRawCoordinateVector().at(0).rawX(),map->getFirstSelectedObject()->getRawCoordinateVector().at(0).rawY(),10,10);
                     map->setcontrolpointstext(QString::number(map->getFirstSelectedObject()->getRawCoordinateVector().at(0).nativeX()),i,j*COURSE_ITEMS+2);
                     map->setcontrolpointstext(QString::number(map->getFirstSelectedObject()->getRawCoordinateVector().at(0).nativeY()),i,j*COURSE_ITEMS+3);
                 }
@@ -208,6 +208,27 @@ void courseWidget::coursecpchanged()
                         map->setcontrolpointstext(QString::number(selsym->getRawCoordinateVector().at(j).nativeY()-10000),i,j*COURSE_ITEMS+3);
                         map->setcontrolpointstext(QString::number(selsym->getRawCoordinateVector().at(j).nativeX()),i,j*COURSE_ITEMS+4);
                         map->setcontrolpointstext(QString::number(selsym->getRawCoordinateVector().at(j).nativeY()),i,j*COURSE_ITEMS+5);
+                        for(int k=0; k<map->getNumcourses();k++)
+                        {
+                            if (selsym!=map->getcourse(k))
+                            {
+                                for(int kk=4;kk<map->getcontrolpoints(k)->size();kk+=COURSE_ITEMS)
+                                {
+                                    if(abs(map->getcontrolpoints(k)->at(kk).toInt()-selsym->getRawCoordinateVector().at(j).nativeX())<2000 && \
+                                            abs(map->getcontrolpoints(k)->at(kk+1).toInt()-selsym->getRawCoordinateVector().at(j).nativeY())<2000)
+                                    {
+                                        map->setcontrolpointstext(map->getcontrolpoints(k)->at(kk),i,j*COURSE_ITEMS+4);
+                                        map->setcontrolpointstext(map->getcontrolpoints(k)->at(kk+1),i,j*COURSE_ITEMS+5);
+                                        //@todo set all cp data to edited dashpoint
+                                        MapCoord ccc=MapCoord();
+                                        ccc.setNativeX(map->getcontrolpoints(k)->at(kk).toInt());
+                                        ccc.setNativeY(map->getcontrolpoints(k)->at(kk+1).toInt());
+                                        ccc.setDashPoint(true);
+                                        selsym->asPath()->setCoordinate(j,ccc);
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
                 rn=i;
@@ -643,12 +664,10 @@ void courseWidget::updateRow(int row)
         cp_num=QString::number(n_cp-2);
 
         Object* object = map->getcourse(row);
-        PathObject* path = reinterpret_cast<PathObject*>(object);
-        path->update();
-        double mm_to_meters = 0.001 * map->getScaleDenominator();
-        float length_mm = path->getRawCoordinateVector()[path->getRawCoordinateVector().size()-1].length();
-        float length_meters = length_mm * mm_to_meters;
-
+        const PathPartVector& parts = static_cast<PathObject*>(object)->parts();
+        double mm_to_meters  = 0.001 * map->getScaleDenominator();
+        double length_mm     = parts.front().length();
+        double length_meters = length_mm * mm_to_meters;
         length = locale().toString(length_meters, 'f', 0) % " " % tr("m", "meters");
         course_table->item(row, 1)->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
         course_table->item(row, 2)->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);

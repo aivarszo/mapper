@@ -2494,8 +2494,8 @@ void Map::addcoursefromfile(QStringList *temp)
         new_course_obj->addCoordinate(i,mc);
         new_course.coursecp.push_back(NULL);
     }
-    addObject(new_course_obj);
     new_course_obj->recalculateParts();
+    addObject(new_course_obj);
     new_course.course=new_course_obj;
     courses.push_back(new_course);
 }

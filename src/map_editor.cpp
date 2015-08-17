@@ -1937,7 +1937,7 @@ void MapEditorController::savecourseClicked()
             save_directory = settings.value("openFileDirectory", QDir::homePath()).toString();
         }
 
-        QString filters=QString(".xml");
+        QString filters=QString("*.xml");
 
         QString filter = NULL;
         QString outputfilepath = QFileDialog::getSaveFileName(window, tr("Save courses"), save_directory, filters, &filter);
