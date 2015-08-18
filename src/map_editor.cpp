@@ -1,21 +1,20 @@
 /*
- *    Copyright 2012, 2013 Thomas Schöps
- *    Copyright 2012-2015 Kai Pastor
+ *	Copyright 2012, 2013 Thomas Schöps
  *
- *    This file is part of OpenOrienteering.
+ *	This file is part of OpenOrienteering.
  *
- *    OpenOrienteering is free software: you can redistribute it and/or modify
- *    it under the terms of the GNU General Public License as published by
- *    the Free Software Foundation, either version 3 of the License, or
- *    (at your option) any later version.
+ *	OpenOrienteering is free software: you can redistribute it and/or modify
+ *	it under the terms of the GNU General Public License as published by
+ *	the Free Software Foundation, either version 3 of the License, or
+ *	(at your option) any later version.
  *
- *    OpenOrienteering is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *    GNU General Public License for more details.
+ *	OpenOrienteering is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	GNU General Public License for more details.
  *
- *    You should have received a copy of the GNU General Public License
- *    along with OpenOrienteering.  If not, see <http://www.gnu.org/licenses/>.
+ *	You should have received a copy of the GNU General Public License
+ *	along with OpenOrienteering.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 
@@ -173,7 +172,7 @@ MapEditorController::MapEditorController(OperatingMode mode, Map* map)
 	color_dock_widget = NULL;
 	symbol_dock_widget = NULL;
 	template_dock_widget = NULL;
-    course_dock_widget = NULL;
+	course_dock_widget = NULL;
 	tags_dock_widget = NULL;
 	
 	statusbar_zoom_frame = NULL;
@@ -210,7 +209,7 @@ MapEditorController::~MapEditorController()
 	delete color_dock_widget;
 	delete symbol_dock_widget;
 	delete template_dock_widget;
-    delete course_dock_widget;
+	delete course_dock_widget;
 	delete tags_dock_widget;
 	delete cut_hole_menu;
 	delete mappart_merge_act;
@@ -393,8 +392,8 @@ void MapEditorController::removeTemplatePositionDockWidget(Template* temp)
 
 void MapEditorController::addcourseEditDockWidget(int rn, courseWidget* temp)
 {
-    courseEditDockWidget* course_edit_dock_widget = new courseEditDockWidget(rn, temp,this, window);
-    addFloatingDockWidget(course_edit_dock_widget);
+	courseEditDockWidget* course_edit_dock_widget = new courseEditDockWidget(rn, temp,this, window);
+	addFloatingDockWidget(course_edit_dock_widget);
 }
 
 void MapEditorController::showPopupWidget(QWidget* child_widget, const QString& title)
@@ -402,7 +401,7 @@ void MapEditorController::showPopupWidget(QWidget* child_widget, const QString& 
 	if (mobile_mode)
 	{
 		// FIXME: This is used for KeyButtonBar only
-		//        and not related to mobile_mode!
+		//		and not related to mobile_mode!
 		QSize size = child_widget->sizeHint();
 		QRect map_widget_rect = map_widget->rect();
 		
@@ -511,8 +510,8 @@ void MapEditorController::attach(MainWindow* window)
 	
 #ifdef Q_OS_ANDROID
 	QAndroidJniObject::callStaticMethod<void>("org/openorienteering/mapper/MapperActivity",
-                                       "lockOrientation",
-                                       "()V");
+									   "lockOrientation",
+									   "()V");
 #endif
 	if (mobile_mode)
 	{
@@ -775,9 +774,7 @@ void MapEditorController::createActions()
 	open_template_act = newAction("opentemplate", tr("Open template..."), this, SLOT(openTemplateClicked()), NULL, QString::null, "templates_menu.html");
 	reopen_template_act = newAction("reopentemplate", tr("Reopen template..."), this, SLOT(reopenTemplateClicked()), NULL, QString::null, "templates_menu.html");
 	
-    course_window_act = newCheckAction("coursewindow", tr("Course setup window"), this, SLOT(showcourseWindow(bool)), "window-new", tr("Show/Hide the course window"), "course_menu.html");
-    open_course_act = newAction("opencoursefile", tr("Open course file..."), this, SLOT(opencourseClicked()), NULL, QString::null, "course_menu.html");
-    save_course_act = newAction("savecoursefile", tr("Save course file..."), this, SLOT(savecourseClicked()), NULL, QString::null, "course_menu.html");
+	course_window_act = newCheckAction("coursewindow", tr("Course setup window"), this, SLOT(showcourseWindow(bool)), "window-new", tr("Show/Hide the course window"), "course_menu.html");
 
 	tags_window_act = newCheckAction("tagswindow", tr("Tag editor"), this, SLOT(showTagsWindow(bool)), "window-new", tr("Show/Hide the tag editor window"), "tag_editor.html");
 	
@@ -1027,12 +1024,9 @@ void MapEditorController::createMenuAndToolbars()
 	template_menu->addAction(open_template_act);
 	template_menu->addAction(reopen_template_act);
 	
-    // Course menu
-    QMenu* course_menu = window->menuBar()->addMenu(tr("&Courses"));
-    course_menu->addAction(course_window_act);
-    course_menu->addSeparator();
-    course_menu->addAction(open_course_act);
-    course_menu->addAction(save_course_act);
+	// Course menu
+	QMenu* course_menu = window->menuBar()->addMenu(tr("&Courses"));
+	course_menu->addAction(course_window_act);
 
 	// Extend and activate general toolbar
 	QToolBar* main_toolbar = window->getGeneralToolBar();
@@ -1327,8 +1321,8 @@ void MapEditorController::detach()
 	
 #ifdef Q_OS_ANDROID
 	QAndroidJniObject::callStaticMethod<void>("org/openorienteering/mapper/MapperActivity",
-                                       "unlockOrientation",
-                                       "()V");
+									   "unlockOrientation",
+									   "()V");
 #endif
 	
 	if (mobile_mode)
@@ -1809,185 +1803,18 @@ void MapEditorController::closedTemplateAvailabilityChanged()
 
 void MapEditorController::showcourseWindow(bool show)
 {
-    if (!course_dock_widget)
-    {
-        courseWidget* course_widget = new courseWidget(map, main_view, this, course_dock_widget);
-        course_dock_widget = new EditorDockWidget(tr("Courses"), course_window_act, this, window);
-        course_dock_widget->setWidget(course_widget);
-        course_dock_widget->setObjectName("Course dock widget");
-        if (!window->restoreDockWidget(course_dock_widget))
-            window->addDockWidget(Qt::RightDockWidgetArea, course_dock_widget, Qt::Vertical);
-    }
+	if (!course_dock_widget)
+	{
+		courseWidget* course_widget = new courseWidget(map, main_view, this, course_dock_widget);
+		course_dock_widget = new EditorDockWidget(tr("Courses"), course_window_act, this, window);
+		course_dock_widget->setWidget(course_widget);
+		course_dock_widget->setObjectName("Course dock widget");
+		if (!window->restoreDockWidget(course_dock_widget))
+			window->addDockWidget(Qt::RightDockWidgetArea, course_dock_widget, Qt::Vertical);
+	}
 
-    course_window_act->setChecked(show);
-    course_dock_widget->setVisible(show);
-}
-
-void MapEditorController::opencourseClicked()
-{
-    QString inputfilepath = courseWidget::showOpencourseDialog(window, this);
-    if (inputfilepath.isEmpty())
-        return;
-
-    QFile inputFile(inputfilepath);
-
-    if (!inputFile.open(QIODevice::ReadOnly))
-    {
-        return;
-    }
-
-    showcourseWindow(true);
-    QXmlStreamReader reader(&inputFile);
-    int n_cp=0;
-    QStringList *t1=new QStringList();
-    while (!reader.atEnd())
-    {
-        reader.readNext();
-        if (reader.isEndElement()) continue;
-        if (reader.name() == "cp")
-        {
-            while (!reader.atEnd())
-            {
-                reader.readNext();
-                if ((reader.name()=="cp") && reader.isEndElement())
-                {
-                    break;
-                }
-                if (reader.isEndElement()) continue;
-                if (reader.name() == "cp_num")
-                {
-                    reader.readElementText();
-                }
-                else if (reader.name() == "cp_cod")
-                {
-                    t1->push_back(reader.readElementText());
-                }
-                else if (reader.name() == "cp_x")
-                {
-                    t1->push_back(reader.readElementText());
-                }
-                else if (reader.name() == "cp_y")
-                {
-                    t1->push_back(reader.readElementText());
-                }
-                else if (reader.name() == "cr_x")
-                {
-                    t1->push_back(reader.readElementText());
-                }
-                else if (reader.name() == "cr_y")
-                {
-                    t1->push_back(reader.readElementText());
-                }
-                else if (reader.name() == "cd_C")
-                {
-                    t1->push_back(reader.readElementText());
-                }
-                else if (reader.name() == "cd_D")
-                {
-                    t1->push_back(reader.readElementText());
-                }
-                else if (reader.name() == "cd_E")
-                {
-                    t1->push_back(reader.readElementText());
-                }
-                else if (reader.name() == "cd_F")
-                {
-                    t1->push_back(reader.readElementText());
-                }
-                else if (reader.name() == "cd_G")
-                {
-                    t1->push_back(reader.readElementText());
-                }
-                else if (reader.name() == "cd_H")
-                {
-                    t1->push_back(reader.readElementText());
-                }
-            }
-        }
-        else if(reader.name() == "course")
-        {
-            if (t1->size()>0)
-            {
-//                map->setcontrolpoints(t1,n_cp);
-                map->addcoursefromfile(t1);
-                qobject_cast<courseWidget*>(course_dock_widget->widget())->addRow();
-                t1=new QStringList();
-                n_cp++;
-            }
-            t1->push_back(reader.attributes().value("name").toString());
-        }
-    }
-//    map->setcontrolpoints(t1,n_cp);
-    reader.clear();
-    inputFile.close();
-    map->addcoursefromfile(t1);
-    qobject_cast<courseWidget*>(course_dock_widget->widget())->addRow();
-}
-
-void MapEditorController::savecourseClicked()
-{
-    if (map->getNumcourses()>0)
-    {
-        QFileInfo current(getWindow()->currentPath());
-        QString save_directory = current.canonicalPath();
-        if (save_directory.isEmpty())
-        {
-            // revert to least recently used directory or home directory.
-            QSettings settings;
-            save_directory = settings.value("openFileDirectory", QDir::homePath()).toString();
-        }
-
-        QString filters=QString("*.xml");
-
-        QString filter = NULL;
-        QString outputfilepath = QFileDialog::getSaveFileName(window, tr("Save courses"), save_directory, filters, &filter);
-
-        if (outputfilepath.isEmpty())
-            return;
-
-        if (!outputfilepath.endsWith(QString(".xml"), Qt::CaseInsensitive))
-            outputfilepath.append(".xml");
-
-        QFile outputFile(outputfilepath);
-
-        if (!outputFile.open(QIODevice::WriteOnly))
-        {
-            return;
-        }
-
-        QXmlStreamWriter writer(&outputFile);
-        writer.setAutoFormatting(true);
-        writer.writeStartDocument();
-        writer.writeStartElement("courses");
-        for (int i=0;i<map->getNumcourses();i++)
-        {
-            writer.writeStartElement("course");
-            writer.writeAttribute("name", map->getcontrolpoints(i)->at(0));
-            int n_cp=0;
-            for (int j=1;j<map->getcontrolpoints(i)->size();j+=COURSE_ITEMS)
-            {
-                writer.writeStartElement("cp");
-                writer.writeTextElement("cp_num", QString::number(n_cp));
-                writer.writeTextElement("cp_cod", map->getcontrolpoints(i)->at(j));
-                n_cp++;
-                writer.writeTextElement("cp_x", map->getcontrolpoints(i)->at(j+1));
-                writer.writeTextElement("cp_y", map->getcontrolpoints(i)->at(j+2));
-                writer.writeTextElement("cr_x", map->getcontrolpoints(i)->at(j+3));
-                writer.writeTextElement("cr_y", map->getcontrolpoints(i)->at(j+4));
-                writer.writeTextElement("cd_C", map->getcontrolpoints(i)->at(j+5));
-                writer.writeTextElement("cd_D", map->getcontrolpoints(i)->at(j+6));
-                writer.writeTextElement("cd_E", map->getcontrolpoints(i)->at(j+7));
-                writer.writeTextElement("cd_F", map->getcontrolpoints(i)->at(j+8));
-                writer.writeTextElement("cd_G", map->getcontrolpoints(i)->at(j+9));
-                writer.writeTextElement("cd_H", map->getcontrolpoints(i)->at(j+10));
-                writer.writeEndElement();
-            }
-            writer.writeEndElement();
-        }
-        writer.writeEndElement();
-        writer.writeEndDocument();
-        outputFile.close();
-    }
+	course_window_act->setChecked(show);
+	course_dock_widget->setVisible(show);
 }
 
 void MapEditorController::showTagsWindow(bool show)
@@ -2073,7 +1900,7 @@ void MapEditorController::selectedSymbolsChanged()
 		{
 			// Auto-switch to a draw tool when selecting a symbol under certain conditions
 			if (current_tool->toolType() == MapEditorTool::Pan
-			    || ((current_tool->toolType() == MapEditorTool::EditLine || current_tool->toolType() == MapEditorTool::EditPoint) && map->getNumSelectedObjects() == 0))
+				|| ((current_tool->toolType() == MapEditorTool::EditLine || current_tool->toolType() == MapEditorTool::EditPoint) && map->getNumSelectedObjects() == 0))
 			{
 				current_tool->switchToDefaultDrawTool(active_symbol);
 			}
@@ -2145,15 +1972,15 @@ void MapEditorController::updateSymbolDependentActions()
 
 void MapEditorController::updateObjectDependentActions()
 {
-	bool have_multiple_parts     = map->getNumParts() > 1;
-	bool have_selection          = map->getNumSelectedObjects() > 0 && !editing_in_progress;
+	bool have_multiple_parts	 = map->getNumParts() > 1;
+	bool have_selection		  = map->getNumSelectedObjects() > 0 && !editing_in_progress;
 	bool single_object_selected  = map->getNumSelectedObjects() == 1 && !editing_in_progress;
-	bool have_line               = false;
-	bool have_area               = false;
-	bool have_area_with_holes    = false;
+	bool have_line			   = false;
+	bool have_area			   = false;
+	bool have_area_with_holes	= false;
 	bool have_rotatable_pattern  = false;
-	bool have_rotatable_point    = false;
-	int  num_selected_paths      = 0;
+	bool have_rotatable_point	= false;
+	int  num_selected_paths	  = 0;
 	bool first_selected_is_path  = have_selection && map->getFirstSelectedObject()->getType() == Object::Path;
 	bool uniform_symbol_selected = true;
 	const Symbol* uniform_symbol = NULL;
@@ -2273,9 +2100,9 @@ void MapEditorController::updateObjectDependentActions()
 	// boolean_prerequisite [&& x]
 	bool const boolean_prerequisite = first_selected_is_path && num_selected_paths >= 2;
 	QString const extra_status_tip = " " +
-	                                 ( boolean_prerequisite
-	                                 ? tr("Resulting symbol: %1 %2.").arg(first_selected_symbol->getNumberAsString(), first_selected_symbol->getPlainTextName())
-	                                 : tr("Select at least two area or path objects activate this tool.") );
+									 ( boolean_prerequisite
+									 ? tr("Resulting symbol: %1 %2.").arg(first_selected_symbol->getNumberAsString(), first_selected_symbol->getPlainTextName())
+									 : tr("Select at least two area or path objects activate this tool.") );
 	boolean_union_act->setEnabled(boolean_prerequisite);
 	boolean_union_act->setStatusTip(tr("Unify overlapping objects.") + extra_status_tip);
 	boolean_intersection_act->setEnabled(boolean_prerequisite);
@@ -3506,12 +3333,12 @@ void MapEditorController::addMapPart()
 {
 	bool accepted = false;
 	QString name = QInputDialog::getText(
-	                   window,
-	                   tr("Add new part..."),
-	                   tr("Enter the name of the map part:"),
-	                   QLineEdit::Normal,
-	                   QString(),
-	                   &accepted );
+					   window,
+					   tr("Add new part..."),
+					   tr("Enter the name of the map part:"),
+					   QLineEdit::Normal,
+					   QString(),
+					   &accepted );
 	if (accepted && !name.isEmpty())
 	{
 		MapPart* part = new MapPart(name, map);
@@ -3526,11 +3353,11 @@ void MapEditorController::removeMapPart()
 	auto part = map->getCurrentPart();
 	
 	QMessageBox::StandardButton button =
-	        QMessageBox::question(
-	            window,
-                tr("Remove current part"),
-                tr("Do you want to remove map part \"%1\" and all its objects?").arg(part->getName()),
-                QMessageBox::Yes | QMessageBox::No );
+			QMessageBox::question(
+				window,
+				tr("Remove current part"),
+				tr("Do you want to remove map part \"%1\" and all its objects?").arg(part->getName()),
+				QMessageBox::Yes | QMessageBox::No );
 	
 	if (button == QMessageBox::Yes)
 	{
@@ -3565,13 +3392,13 @@ void MapEditorController::renameMapPart()
 {
 	bool accepted = false;
 	QString name =
-	        QInputDialog::getText(
-	            window,
-	            tr("Rename current part..."),
-	            tr("Enter the name of the map part:"),
-	            QLineEdit::Normal,
-	            map->getCurrentPart()->getName(),
-	            &accepted );
+			QInputDialog::getText(
+				window,
+				tr("Rename current part..."),
+				tr("Enter the name of the map part:"),
+				QLineEdit::Normal,
+				map->getCurrentPart()->getName(),
+				&accepted );
 	if (accepted && !name.isEmpty())
 	{
 		map->push(new MapPartUndoStep(map, MapPartUndoStep::ModifyMapPart, map->getCurrentPartIndex()));
@@ -3603,11 +3430,11 @@ void MapEditorController::mergeCurrentMapPartTo(int target)
 	MapPart* const source_part = map->getCurrentPart();
 	MapPart* const target_part = map->getPart(target);
 	const QMessageBox::StandardButton button =
-	        QMessageBox::question(
-	            window,
-                tr("Merge map parts"),
-                tr("Do you want to move all objects from map part \"%1\" to \"%2\", and to remove \"%1\"?").arg(source_part->getName()).arg(target_part->getName()),
-                QMessageBox::Yes | QMessageBox::No );
+			QMessageBox::question(
+				window,
+				tr("Merge map parts"),
+				tr("Do you want to move all objects from map part \"%1\" to \"%2\", and to remove \"%1\"?").arg(source_part->getName()).arg(target_part->getName()),
+				QMessageBox::Yes | QMessageBox::No );
 	
 	if (button == QMessageBox::Yes)
 	{
@@ -3633,11 +3460,11 @@ void MapEditorController::mergeAllMapParts()
 {
 	QString const name = map->getCurrentPart()->getName();
 	const QMessageBox::StandardButton button =
-	        QMessageBox::question(
-	            window,
-                tr("Merge map parts"),
-                tr("Do you want to move all objects to map part \"%1\", and to remove all other map parts?").arg(name),
-                QMessageBox::Yes | QMessageBox::No );
+			QMessageBox::question(
+				window,
+				tr("Merge map parts"),
+				tr("Do you want to move all objects to map part \"%1\", and to remove all other map parts?").arg(name),
+				QMessageBox::Yes | QMessageBox::No );
 	
 	if (button == QMessageBox::Yes)
 	{
@@ -3834,8 +3661,8 @@ void MapEditorController::importClicked()
 	settings.setValue("importFileDirectory", QFileInfo(filename).canonicalPath());
 	
 	if ( filename.endsWith(".dxf", Qt::CaseInsensitive) || 
-	     filename.endsWith(".gpx", Qt::CaseInsensitive) ||
-	     filename.endsWith(".osm", Qt::CaseInsensitive) )
+		 filename.endsWith(".gpx", Qt::CaseInsensitive) ||
+		 filename.endsWith(".osm", Qt::CaseInsensitive) )
 	{
 		importGeoFile(filename);
 	}

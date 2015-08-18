@@ -1,21 +1,21 @@
 /*
- *    Copyright 2012-2014 Thomas Schöps
- *    Copyright 2013-2015 Kai Pastor
+ *	Copyright 2012-2014 Thomas Schöps
+ *	Copyright 2013-2015 Kai Pastor
  *
- *    This file is part of OpenOrienteering.
+ *	This file is part of OpenOrienteering.
  *
- *    OpenOrienteering is free software: you can redistribute it and/or modify
- *    it under the terms of the GNU General Public License as published by
- *    the Free Software Foundation, either version 3 of the License, or
- *    (at your option) any later version.
+ *	OpenOrienteering is free software: you can redistribute it and/or modify
+ *	it under the terms of the GNU General Public License as published by
+ *	the Free Software Foundation, either version 3 of the License, or
+ *	(at your option) any later version.
  *
- *    OpenOrienteering is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *    GNU General Public License for more details.
+ *	OpenOrienteering is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	GNU General Public License for more details.
  *
- *    You should have received a copy of the GNU General Public License
- *    along with OpenOrienteering.  If not, see <http://www.gnu.org/licenses/>.
+ *	You should have received a copy of the GNU General Public License
+ *	along with OpenOrienteering.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 
@@ -56,8 +56,6 @@
 #include "template.h"
 #include "undo_manager.h"
 #include "util.h"
-
-#include "course_dock_widget.h"
 
 // ### Misc ###
 
@@ -466,7 +464,6 @@ void Map::init()
 	objects_dirty = false;
 	other_dirty = false;
 	unsaved_changes = false;
-    courses_dirty = false;
 }
 
 void Map::reset()
@@ -585,7 +582,6 @@ bool Map::saveTo(const QString& path, MapView* view)
 		objects_dirty = false;
 		other_dirty = false;
 		unsaved_changes = false;
-        courses_dirty = false;
 		undoManager().setClean();
 	}
 	return success;
@@ -2185,36 +2181,36 @@ void Map::setObjectAreaDirty(QRectF map_coords_rect)
 }
 
 void Map::findObjectsAt(
-        MapCoordF coord,
-        float tolerance,
-        bool treat_areas_as_paths,
-        bool extended_selection,
-        bool include_hidden_objects,
-        bool include_protected_objects,
-        SelectionInfoVector& out ) const
+		MapCoordF coord,
+		float tolerance,
+		bool treat_areas_as_paths,
+		bool extended_selection,
+		bool include_hidden_objects,
+		bool include_protected_objects,
+		SelectionInfoVector& out ) const
 {
 	getCurrentPart()->findObjectsAt(coord, tolerance, treat_areas_as_paths, extended_selection, include_hidden_objects, include_protected_objects, out);
 }
 
 void Map::findAllObjectsAt(
-        MapCoordF coord,
-        float tolerance,
-        bool treat_areas_as_paths,
-        bool extended_selection,
-        bool include_hidden_objects,
-        bool include_protected_objects,
-        SelectionInfoVector& out ) const
+		MapCoordF coord,
+		float tolerance,
+		bool treat_areas_as_paths,
+		bool extended_selection,
+		bool include_hidden_objects,
+		bool include_protected_objects,
+		SelectionInfoVector& out ) const
 {
 	for (const MapPart* part : parts)
 		part->findObjectsAt(coord, tolerance, treat_areas_as_paths, extended_selection, include_hidden_objects, include_protected_objects, out);
 }
 
 void Map::findObjectsAtBox(
-        MapCoordF corner1,
-        MapCoordF corner2,
-        bool include_hidden_objects,
-        bool include_protected_objects,
-        std::vector< Object* >& out ) const
+		MapCoordF corner1,
+		MapCoordF corner2,
+		bool include_hidden_objects,
+		bool include_protected_objects,
+		std::vector< Object* >& out ) const
 {
 	getCurrentPart()->findObjectsAtBox(corner1, corner2, include_hidden_objects, include_protected_objects, out);
 }
@@ -2291,7 +2287,6 @@ void Map::setGrid(const MapGrid &grid)
 		setOtherDirty();
 	}
 }
-
 
 bool Map::isAreaHatchingEnabled() const
 {
@@ -2376,7 +2371,6 @@ void Map::setHasUnsavedChanges(bool has_unsaved_changes)
 		templates_dirty = false;
 		objects_dirty = false;
 		other_dirty = false;
-        courses_dirty = false;
 		if (unsaved_changes)
 		{
 			unsaved_changes = false;
@@ -2395,140 +2389,6 @@ void Map::setOtherDirty()
 	other_dirty = true;
 	setHasUnsavedChanges(true);
 }
-
-void Map::setcourse(Object* temp, int row)
-{
-    courses[row].course = temp;
-//    emit(courseChanged(row, courses[row].course));
-}
-
-QStringList* Map::getcontrolpoints(int i)
-{
-    if (i>=0)
-    {
-        return courses[i].control_points;
-    }
-    else
-    {
-        return NULL;
-    }
-}
-void Map::setcontrolpoints(QStringList* temp, int row)
-{
-    courses[row].control_points = temp;
-//    emit(courseChanged(row, courses[row]));
-}
-void Map::clearcoursecp(int i)
-{
-    for (int j=0;j<courses[i].coursecp.size();j++)
-    {
-        deleteObject(courses[i].coursecp.at(j),false);
-        courses[i].coursecp.at(j)=NULL;
-    }
-}
-
-void Map::removecourse(int pos)
-{
-    courses.removeAt(pos);
-//	emit(courseDeleted(pos, temp));
-}
-
-int Map::findcourseIndex(const Object* temp) const
-{
-    int size = (int)courses.size();
-    for (int i = 0; i < size; ++i)
-    {
-        if (courses[i].course == temp)
-            return i;
-    }
-    return -1;
-}
-
-void Map::setcoursesDirty()
-{
-    courses_dirty = true;
-    setHasUnsavedChanges(true);
-}
-
-void Map::setcourseAreaDirty(Object* temp, QRectF area, int pixel_border)
-{
-//	bool front_cache = findTemplateIndex(temp) >= getFirstFrontTemplate();	// TODO: is there a better way to find out if that is a front or back template?
-
-//	for (int i = 0; i < (int)widgets.size(); ++i)
-//		if (widgets[i]->getMapView()->isTemplateVisible(temp))
-//			widgets[i]->markTemplateCacheDirty(widgets[i]->getMapView()->calculateViewBoundingBox(area), pixel_border, front_cache);
-}
-void Map::setcourseAreaDirty(int i)
-{
-//	if (i == -1)
-//		return;	// no assert here as convenience, so setTemplateAreaDirty(-1) can be called without effect for the map part
-//	assert(i >= 0 && i < (int)templates.size());
-
-//	templates[i]->setTemplateAreaDirty();
-}
-
-Symbol* Map::getSymbolByTextNumber(QString ts)
-{
-    Symbol *sym;
-    for (int k=0; k<getNumSymbols(); k++)
-    {
-        if (getSymbol(k)->getNumberAsString()==ts)
-            sym=getSymbol(k);
-    }
-    return sym;
-}
-
-void Map::addcoursefromfile(QStringList *temp)
-{
-    MapCoord mc;
-    onecourse new_course;
-    new_course.control_points=temp;
-    Symbol* csym=getSymbolByTextNumber("799");
-    PathObject* new_course_obj=new PathObject();
-    new_course_obj->setSymbol(csym,true);
-    for (int i=0; i<(temp->size()-1)/COURSE_ITEMS;i++)
-    {
-        mc.setNativeX(temp->at(i*COURSE_ITEMS+1+3).toInt());
-        mc.setNativeY(temp->at(i*COURSE_ITEMS+1+4).toInt());
-        mc.setDashPoint(true);
-        new_course_obj->addCoordinate(i,mc);
-        new_course.coursecp.push_back(NULL);
-    }
-    new_course_obj->recalculateParts();
-    addObject(new_course_obj);
-    new_course.course=new_course_obj;
-    courses.push_back(new_course);
-}
-
-void Map::addcourse(Object* temp)
-{
-    onecourse new_course;
-    QStringList *ss=new QStringList;
-    ss->push_back(tr("- new -"));
-    for(int i=0; i < (temp->asPath()->getCoordinateCount()); i++)
-    {
-        if (!temp->asPath()->isCurveHandle(i))
-        {
-            ss->push_back(tr("0"));
-            ss->push_back(QString::number(temp->asPath()->getRawCoordinateVector()[i].nativeX()-4000));
-            ss->push_back(QString::number(temp->asPath()->getRawCoordinateVector()[i].nativeY()-10000));
-            ss->push_back(QString::number(temp->asPath()->getRawCoordinateVector()[i].nativeX()));
-            ss->push_back(QString::number(temp->asPath()->getRawCoordinateVector()[i].nativeY()));
-            ss->push_back("18.1");
-            ss->push_back("18.1");
-            ss->push_back("18.1");
-            ss->push_back("18.1");
-            ss->push_back("18.1");
-            ss->push_back("18.1");
-            new_course.coursecp.push_back(NULL);
-        }
-    }
-    new_course.control_points=ss;
-    new_course.course=temp;
-
-    courses.push_back(new_course);
-}
-
 
 // slot
 void Map::undoCleanChanged(bool is_clean)
