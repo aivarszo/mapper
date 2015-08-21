@@ -21,7 +21,10 @@
 #ifndef _OPENORIENTEERING_COURSE_DOCK_WIDGET_H_
 #define _OPENORIENTEERING_COURSE_DOCK_WIDGET_H_
 
-#define COURSE_ITEMS 11
+#define C_TEXT "703"
+#define C_LINE "799"
+#define CD_BLANK "18.1"
+#define CD_CORN "720.0"
 
 #include <QFileDialog>
 #include <QtWidgets>
@@ -41,13 +44,34 @@ class courseWidget : public QWidget
 {
 Q_OBJECT
 public:
+
+	typedef QHash<QString,QString> c_point;
+	typedef std::vector<Object*> courseVector;
+	typedef std::vector<c_point*> cpVector;
+
+	typedef struct
+	{
+		Object* course;
+		courseVector coursecp;
+		cpVector* control_points;
+		QString course_name;
+	} onecourse;
+
+	QString xml_names[6]={"cd_C","cd_D","cd_E","cd_F","cd_G","cd_H"};
+
 	courseWidget(Map* map, MapView* main_view, MapEditorController* controller, QWidget* parent = NULL);
 	virtual ~courseWidget();
 	void addRow();
 	void updateRow(int row);
-	QStringList* getcontrolpoints(int i);
-	inline void setcontrolpointstext(QString temp, int i, int j) {courses[i].control_points->replace(j,temp);}
-	void setcontrolpoints(QStringList* temp, int pos);
+	void *getcontrolpoints(int i);
+	void setcontrolpointstext(QString new_key, QString new_value, int course_index, int cp_index);
+	void setcontrolpoints(cpVector* temp, int pos);
+	inline QString getcoursename(int i) {return courses[i].course_name;}
+	inline void setcoursename(QString c_name,int i) {courses[i].course_name=c_name;}
+	inline Object* getcourse(int i) {if (i>=0) return courses[i].course; else return NULL;}
+	inline const Object* getcourse(int i) const {if (i>=0) return courses[i].course; else return NULL;}
+	inline int getNumcourses() const {return courses.size();}
+	inline int getNumcoursecp(int i) const {return courses[i].coursecp.size();}
 
 protected:
 	/**
@@ -72,28 +96,16 @@ protected slots:
 	void cellChange(int row, int column);
 	void updateButtons();
 	
-	void insertcponmap();
-	void insertcpconmap();
-	void insertcpbothonmap();
-	void insertcp(int cc);
+	void insertcp();
 	void clearcp();
 	void cpdescr();
 	void coursecpchanged();
 	void courseselchanged();
+	void selcoursechanged();
 	void opencourseClicked();
 	void savecourseClicked();
 
 private:
-
-	typedef std::vector<Object*> courseVector;
-	typedef std::vector<QStringList*> cpVector;
-
-	typedef struct
-	{
-		Object *course;
-		courseVector coursecp;
-		QStringList *control_points;
-	} onecourse;
 
 	QList<onecourse> courses;
 
@@ -116,6 +128,7 @@ private:
 	QToolButton* clear_cp_button;
 	QToolButton* cp_descr_button;
 	QToolButton* edit_button;
+	QToolButton* help_button;
 
 	Map* map;
 	MapView* main_view;
@@ -123,20 +136,15 @@ private:
 	bool react_to_changes;
 
 	//Courses
-	void addcourse(Object* temp);
-	void addcoursefromfile(QStringList *temp);
+	void courseadd(Object* temp);
+	void addcoursefromfile(cpVector* temp, QString c_name);
 	void removecourse(int pos);
-	inline int getNumcourses() const {return courses.size();}
-	inline Object* getcourse(int i) {if (i>=0) return courses[i].course; else return NULL;}
-	inline const Object* getcourse(int i) const {if (i>=0) return courses[i].course; else return NULL;}
 	void setcourse(Object* temp, int pos);
 	int findcourseIndex(const Object* temp) const;
 	inline void setcoursecp(Object *temp,int i, int j) {courses[i].coursecp[j]=temp;};
 	void clearcoursecp(int i);
-	inline int getNumcoursecp(int i) const {return courses[i].coursecp.size();}
 	inline Object* getcoursecp(int i, int j) {if (i>=0) return courses[i].coursecp.at(j); else return NULL;}
 	Symbol* getSymbolByTextNumber(QString ts);
-	void courseAdded(int pos, const Object* temp);
 
 };
 

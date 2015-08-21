@@ -45,7 +45,7 @@ public:
 	
 	virtual bool event(QEvent* event);
 	virtual void closeEvent(QCloseEvent* event);
-	QToolButton* newToolButton(int i, const QIcon& icon, const QString& text);
+	QToolButton* newToolButton(int cp_num, int cr_num, const QIcon& icon, const QString& text);
 
 public slots:
 //	void courseChanged(int index, const course* temp);
@@ -66,6 +66,7 @@ private:
 	bool react_to_changes;
 	QPushButton* x_button;
 	Object* temp;
+
 	MapEditorController* controller;
 };
 
