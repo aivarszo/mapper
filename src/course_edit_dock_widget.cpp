@@ -104,7 +104,8 @@ void courseEditDockWidget::set_cd_icon()
 	{
 		for(int j=0; j<cw->getNumcoursecp(i); j++)
 		{
-			if(reinterpret_cast<courseWidget::cpVector*>(cw->getcontrolpoints(i))->at(j)->value("cp_cod")==x_edit[cp_row+1]->text())
+			if(reinterpret_cast<courseWidget::cpVector*>(cw->getcontrolpoints(i))->at(j)->value("cp_cod")==x_edit[cp_row+1]->text() \
+			   && (x_edit[cp_row+1]->text()!=QString("0")))
 			{
 				cw->setcontrolpointstext(cd_k,cd_v,i,j);
 			}

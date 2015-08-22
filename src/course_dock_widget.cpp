@@ -21,7 +21,6 @@
 #include "course_dock_widget.h"
 #include "course_edit_dock_widget.h"
 
-//#include "core/georeferencing.h"
 #include "core/path_coord.h"
 #include "gui/main_window.h"
 #include "gui/widgets/segmented_button_layout.h"
@@ -198,6 +197,55 @@ void courseWidget::selcoursechanged()
 	map->addObjectToSelection(getcourse(course_table->currentRow()),true);
 }
 
+void courseWidget::selcourseedittext(int rn, int cn)
+{
+	Object *selsym=map->getFirstSelectedObject();
+	setcontrolpointstext(QString("cp_x"),QString::number(selsym->getRawCoordinateVector().at(0).nativeX()),rn,cn);
+	setcontrolpointstext(QString("cp_y"),QString::number(selsym->getRawCoordinateVector().at(0).nativeY()),rn,cn);
+}
+
+void courseWidget::selcourseeditpoint(int rn)
+{
+	Object *selsym=map->getFirstSelectedObject();
+	for (unsigned int j=0; j<selsym->getRawCoordinateVector().size(); j++)
+	{
+		if(selsym->asPath()->getCoordinate(j).isDashPoint())
+		{
+			setcontrolpointstext(QString("cp_x"),QString::number(selsym->getRawCoordinateVector().at(j).nativeX()-4000),rn,j);
+			setcontrolpointstext(QString("cp_y"),QString::number(selsym->getRawCoordinateVector().at(j).nativeY()-10000),rn,j);
+			setcontrolpointstext(QString("cr_x"),QString::number(selsym->getRawCoordinateVector().at(j).nativeX()),rn,j);
+			setcontrolpointstext(QString("cr_y"),QString::number(selsym->getRawCoordinateVector().at(j).nativeY()),rn,j);
+			for(int k=0; k<getNumcourses();k++)
+			{
+				if (selsym!=getcourse(k))
+				{
+					for(unsigned int kk=0;kk<reinterpret_cast<cpVector*>(getcontrolpoints(k))->size();kk++)
+					{
+						if((abs(reinterpret_cast<cpVector*>(getcontrolpoints(k))->at(kk)->value("cr_x").toInt() - selsym->getRawCoordinateVector().at(j).nativeX())<2000) && \
+								(abs(reinterpret_cast<cpVector*>(getcontrolpoints(k))->at(kk)->value("cr_y").toInt() - selsym->getRawCoordinateVector().at(j).nativeY())<2000))
+						{
+							courses[rn].control_points->erase(courses[rn].control_points->begin()+j);
+							courses[rn].control_points->insert(courses[rn].control_points->begin()+j,courses[k].control_points->at(kk));
+							MapCoord ccc=MapCoord();
+							ccc.setNativeX(reinterpret_cast<cpVector*>(getcontrolpoints(k))->at(kk)->value("cr_x").toInt());
+							ccc.setNativeY(reinterpret_cast<cpVector*>(getcontrolpoints(k))->at(kk)->value("cr_y").toInt());
+							ccc.setDashPoint(true);
+							selsym->asPath()->setCoordinate(j,ccc);
+						}
+					}
+				}
+			}
+		}
+	}
+	updateRow(rn);
+}
+
+void courseWidget::selcourseeditnewpoint(int rn)
+{
+	coursereplace(rn,getcourse(rn));
+	updateRow(rn);
+}
+
 void courseWidget::coursecpchanged()
 {
 	Object *selsym=map->getFirstSelectedObject();
@@ -208,51 +256,26 @@ void courseWidget::coursecpchanged()
 			{
 				if (selsym==getcoursecp(i,j))
 				{
-					setcontrolpointstext(QString("cp_x"),QString::number(map->getFirstSelectedObject()->getRawCoordinateVector().at(0).nativeX()),i,j);
-					setcontrolpointstext(QString("cp_y"),QString::number(map->getFirstSelectedObject()->getRawCoordinateVector().at(0).nativeY()),i,j);
+					selcourseedittext(i,j);
 				}
 			}
 	}
 	if (selsym->getSymbol()->getNumberAsString()==C_LINE)
 	{
-		int rn;
 		for (int i=0; i<getNumcourses(); i++)
 			if (selsym==getcourse(i))
 			{
-				for (unsigned int j=0; j<selsym->getRawCoordinateVector().size(); j++)
+				if (selsym->getRawCoordinateVector().size()!=getNumcoursecp(i))
 				{
-					if(selsym->asPath()->getCoordinate(j).isDashPoint())
-					{
-						setcontrolpointstext(QString("cp_x"),QString::number(selsym->getRawCoordinateVector().at(j).nativeX()-4000),i,j);
-						setcontrolpointstext(QString("cp_y"),QString::number(selsym->getRawCoordinateVector().at(j).nativeY()-10000),i,j);
-						setcontrolpointstext(QString("cr_x"),QString::number(selsym->getRawCoordinateVector().at(j).nativeX()),i,j);
-						setcontrolpointstext(QString("cr_y"),QString::number(selsym->getRawCoordinateVector().at(j).nativeY()),i,j);
-						for(int k=0; k<getNumcourses();k++)
-						{
-							if (selsym!=getcourse(k))
-							{
-								for(unsigned int kk=0;kk<reinterpret_cast<cpVector*>(getcontrolpoints(k))->size();kk++)
-								{
-									if((abs(reinterpret_cast<cpVector*>(getcontrolpoints(k))->at(kk)->value("cr_x").toInt() - selsym->getRawCoordinateVector().at(j).nativeX())<2000) && \
-											(abs(reinterpret_cast<cpVector*>(getcontrolpoints(k))->at(kk)->value("cr_y").toInt() - selsym->getRawCoordinateVector().at(j).nativeY())<2000))
-									{
-										courses[i].control_points->erase(courses[i].control_points->begin()+j);
-										courses[i].control_points->insert(courses[i].control_points->begin()+j,courses[k].control_points->at(kk));
-										MapCoord ccc=MapCoord();
-										ccc.setNativeX(reinterpret_cast<cpVector*>(getcontrolpoints(k))->at(kk)->value("cr_x").toInt());
-										ccc.setNativeY(reinterpret_cast<cpVector*>(getcontrolpoints(k))->at(kk)->value("cr_y").toInt());
-										ccc.setDashPoint(true);
-										selsym->asPath()->setCoordinate(j,ccc);
-									}
-								}
-							}
-						}
-					}
+					selcourseeditnewpoint(i);
+					break;
 				}
-				rn=i;
-				break;
+				if (selsym->getRawCoordinateVector().size()==getNumcoursecp(i))
+				{
+					selcourseeditpoint(i);
+					break;
+				}
 			}
-		updateRow(rn);
 	}
 }
 
@@ -347,7 +370,7 @@ void courseWidget::cpdescr()
 		map->addObject(line1);
 		TextObject* to;
 		sym=getSymbolByTextNumber("17.1");
-		for (int i=0; i<cd_height; i++)
+		for (int i=1; i<cd_height-1; i++)
 		{
 			to=new TextObject(sym);
 			to->setText(QString::number(i));
@@ -357,7 +380,11 @@ void courseWidget::cpdescr()
 		sym=getSymbolByTextNumber("17.2");
 		PointObject* po;
 		Symbol* sym1;
-		for (int i=0; i<cd_height; i++)
+		sym1=getSymbolByTextNumber("15.1");
+		po=new PointObject(sym1);
+		po->setPosition(orig_rx+3*1000,orig_ry+21*1000);
+		map->addObject(po);
+		for (int i=1; i<cd_height-1; i++)
 		{
 			to=new TextObject(sym);
 			to->setText(courses[rownum].control_points->at(i)->value("cp_cod"));
@@ -761,7 +788,6 @@ void courseWidget::savecourseClicked()
 			{
 				QHashIterator<QString,QString> hi(*reinterpret_cast<cpVector*>(getcontrolpoints(i))->at(j));
 				writer.writeStartElement("cp");
-//				writer.writeTextElement("cp_num", QString::number(i));
 				while (hi.hasNext())
 				{
 					hi.next();
@@ -868,12 +894,12 @@ void courseWidget::addcoursefromfile(cpVector* temp,QString c_name)
 	addRow();
 }
 
-void courseWidget::courseadd(Object* temp)
+void* courseWidget::getcoursedata(Object* temp)
 {
-	onecourse new_course;
+	onecourse* new_course=new onecourse;
 	cpVector* ss=new cpVector();
 	c_point* s1;
-	new_course.course_name=QString("- new -");
+	new_course->course_name=QString("- new -");
 	for(unsigned int i=0; i < (temp->asPath()->getCoordinateCount()); i++)
 	{
 		s1=new c_point();
@@ -887,10 +913,49 @@ void courseWidget::courseadd(Object* temp)
 			s1->insert(xml_names[j],QString("18.1"));
 		}
 		ss->push_back(s1);
-		new_course.coursecp.push_back(NULL);
+		new_course->coursecp.push_back(NULL);
 	}
-	new_course.control_points=ss;
-	new_course.course=temp;
+	new_course->control_points=ss;
+	new_course->course=temp;
 
-	courses.push_back(new_course);
+	return new_course;
+}
+
+void courseWidget::courseadd(Object* temp)
+{
+	onecourse* new_course;
+	new_course=reinterpret_cast<onecourse*>(getcoursedata(temp));
+	courses.push_back(*new_course);
+}
+
+void courseWidget::coursereplace(int rn, Object* temp)
+{
+	onecourse* new_course=new onecourse;
+	onecourse old_course=courses[rn];
+	new_course=reinterpret_cast<onecourse*>(getcoursedata(temp));
+	new_course->course_name=old_course.course_name;
+	int cpn=0;
+	unsigned int i=0;
+	while (i<old_course.coursecp.size())
+	{
+		if((old_course.control_points->at(i)->value("cr_x").toInt()==reinterpret_cast<PathObject*>(temp)->getCoordinate(cpn).nativeX()) \
+		   &&(old_course.control_points->at(i)->value("cr_y").toInt()==reinterpret_cast<PathObject*>(temp)->getCoordinate(cpn).nativeY()))
+		{
+			new_course->control_points->at(cpn)=old_course.control_points->at(i);
+			cpn++;
+			i++;
+		}
+		else
+		{
+			if(new_course->control_points->size()>old_course.control_points->size())
+			{
+				cpn++;
+			}
+			else
+			{
+				i++;
+			}
+		}
+	}
+	courses.replace(rn, *new_course);
 }

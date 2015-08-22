@@ -51,9 +51,9 @@ public:
 
 	typedef struct
 	{
-		Object* course;
-		courseVector coursecp;
-		cpVector* control_points;
+		Object* course;				// map object pointer (799)
+		courseVector coursecp;		// map object pointers (703)
+		cpVector* control_points;	// controls info
 		QString course_name;
 	} onecourse;
 
@@ -63,7 +63,7 @@ public:
 	virtual ~courseWidget();
 	void addRow();
 	void updateRow(int row);
-	void *getcontrolpoints(int i);
+	void* getcontrolpoints(int i);
 	void setcontrolpointstext(QString new_key, QString new_value, int course_index, int cp_index);
 	void setcontrolpoints(cpVector* temp, int pos);
 	inline QString getcoursename(int i) {return courses[i].course_name;}
@@ -145,7 +145,11 @@ private:
 	void clearcoursecp(int i);
 	inline Object* getcoursecp(int i, int j) {if (i>=0) return courses[i].coursecp.at(j); else return NULL;}
 	Symbol* getSymbolByTextNumber(QString ts);
-
+	void selcourseedittext(int rn, int cn);
+	void selcourseeditpoint(int rn);
+	void selcourseeditnewpoint(int rn);
+	void* getcoursedata(Object *temp);
+	void coursereplace(int rn, Object* temp);
 };
 
 #endif
