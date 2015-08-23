@@ -81,6 +81,14 @@ courseEditDockWidget::courseEditDockWidget(int rn, courseWidget* temp, MapEditor
 		}
 	}
 	cp_edit_field->addLayout(layout);
+
+	QGridLayout* flayout = new QGridLayout();
+	lb_to_finish=new QLabel(tr("Distance to fininsh:"));
+	ed_to_finish=new QLineEdit(cw->getdisttofinish(rownum));
+	flayout->addWidget(lb_to_finish, 0, 0);
+	flayout->addWidget(ed_to_finish, 1, 0);
+	cp_edit_field->addLayout(flayout);
+
 	x_button = new QPushButton(tr("Save"));
 	cp_edit_field->addWidget(x_button);
 	QPushButton* x_button1 = new QPushButton(tr("Close"));
@@ -154,6 +162,7 @@ void courseEditDockWidget::savecourse()
 {
 	courseWidget::cpVector* ss=reinterpret_cast<courseWidget::cpVector*>(cw->getcontrolpoints(rownum));
 	cw->setcoursename(QString(x_edit[0]->text()),rownum);
+	cw->setdisttofinish(QString(ed_to_finish->text()),rownum);
 	int ccp=1;
 	for (unsigned int i=1; i<ss->size(); i++)
 	{
@@ -163,6 +172,5 @@ void courseEditDockWidget::savecourse()
 			ccp++;
 		}
 	}
-//	cw->setcontrolpoints(ss,rownum);
 	cw->updateRow(rownum);
 }

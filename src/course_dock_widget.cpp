@@ -31,6 +31,7 @@
 #include "symbol.h"
 #include "settings.h"
 #include "util.h"
+#include "tool_edit.h"
 
 // ### courseWidget ###
 
@@ -182,6 +183,18 @@ courseWidget::~courseWidget()
 
 void courseWidget::courseselchanged()
 {
+	if (map->getFirstSelectedObject()==NULL)
+	{
+		for (int i=0; i<getNumcourses(); i++)
+		{
+			if(map->getPart(0)->findObjectIndex(getcourse(i))==-1)
+			{
+				removecourse(i);
+				course_table->removeRow(i);
+				return;
+			}
+		}
+	}
 	for (int i=0; i<getNumcourses(); i++)
 	{
 		if (map->getFirstSelectedObject()==getcourse(i))
@@ -249,6 +262,10 @@ void courseWidget::selcourseeditnewpoint(int rn)
 void courseWidget::coursecpchanged()
 {
 	Object *selsym=map->getFirstSelectedObject();
+	if (selsym==NULL)
+	{
+		return;
+	}
 	if (selsym->getSymbol()->getNumberAsString()==C_TEXT)
 	{
 		for (int i=0; i<getNumcourses(); i++)
@@ -401,6 +418,32 @@ void courseWidget::cpdescr()
 				}
 			}
 		}
+		sym=getSymbolByTextNumber("17.4");
+		to=new TextObject(sym);
+		to->setText(courses[rownum].dist_to_finish+"m");
+		to->setBox(orig_rx+24*1000,cd_height*6000+orig_ry+15*1000,6,6);
+		map->addObject(to);
+		to=new TextObject(sym);
+		to->setText(courses[rownum].course_name);
+		to->setBox(orig_rx+3*1000,orig_ry+15*1000,6,6);
+		map->addObject(to);
+		to=new TextObject(sym);
+		Object* object = getcourse(rownum);
+		const PathPartVector& parts = static_cast<PathObject*>(object)->parts();
+		double mm_to_meters  = 0.001 * map->getScaleDenominator();
+		double length_mm	 = parts.front().length();
+		double length_kmeters = length_mm * mm_to_meters/1000;
+		to->setText(QString::number(round(length_kmeters*10)/10)+"km");
+		to->setBox(orig_rx+24*1000,orig_ry+15*1000,6,6);
+		map->addObject(to);
+		sym1=getSymbolByTextNumber("15.2");
+		po=new PointObject(sym1);
+		po->setPosition(orig_rx+3*1000,cd_height*6000+15*1000+orig_ry);
+		map->addObject(po);
+		sym1=getSymbolByTextNumber("15.3");
+		po=new PointObject(sym1);
+		po->setPosition(orig_rx+3*1000+7*6000,cd_height*6000+15*1000+orig_ry);
+		map->addObject(po);
 	}
 }
 
@@ -707,6 +750,7 @@ void courseWidget::opencourseClicked()
 	cpVector* t1=new cpVector();
 	c_point* t2=new c_point();
 	QString course_name;
+	QString dist_to_finish;
 	while (!reader.atEnd())
 	{
 		reader.readNext();
@@ -729,11 +773,15 @@ void courseWidget::opencourseClicked()
 				}
 			}
 		}
+		else if((reader.name() == "dist_to_finish") && !reader.isEndElement())
+		{
+			dist_to_finish=reader.attributes().value("dist").toString();
+		}
 		else if((reader.name() == "course") && !reader.isEndElement())
 		{
 			if (t1->size()>0)
 			{
-				addcoursefromfile(t1,course_name);
+				addcoursefromfile(t1,course_name,dist_to_finish);
 				t1=new cpVector();
 				n_cp++;
 			}
@@ -742,7 +790,7 @@ void courseWidget::opencourseClicked()
 	}
 	reader.clear();
 	inputFile.close();
-	addcoursefromfile(t1,course_name);
+	addcoursefromfile(t1, course_name, dist_to_finish);
 }
 
 void courseWidget::savecourseClicked()
@@ -795,6 +843,9 @@ void courseWidget::savecourseClicked()
 				}
 				writer.writeEndElement();
 			}
+			writer.writeEndElement();
+			writer.writeStartElement("dist_to_finish");
+			writer.writeAttribute(QString("dist"), courses[i].dist_to_finish);
 			writer.writeEndElement();
 		}
 		writer.writeEndElement();
@@ -870,12 +921,13 @@ Symbol* courseWidget::getSymbolByTextNumber(QString ts)
 	return sym;
 }
 
-void courseWidget::addcoursefromfile(cpVector* temp,QString c_name)
+void courseWidget::addcoursefromfile(cpVector* temp,QString c_name, QString dtf)
 {
 	MapCoord mc;
 	onecourse new_course;
 	new_course.control_points=temp;
 	new_course.course_name=c_name;
+	new_course.dist_to_finish=dtf;
 	Symbol* csym=getSymbolByTextNumber(C_LINE);
 	PathObject* new_course_obj=new PathObject();
 	new_course_obj->setSymbol(csym,true);
@@ -900,6 +952,7 @@ void* courseWidget::getcoursedata(Object* temp)
 	cpVector* ss=new cpVector();
 	c_point* s1;
 	new_course->course_name=QString("- new -");
+	new_course->dist_to_finish=QString("0");
 	for(unsigned int i=0; i < (temp->asPath()->getCoordinateCount()); i++)
 	{
 		s1=new c_point();
@@ -934,6 +987,7 @@ void courseWidget::coursereplace(int rn, Object* temp)
 	onecourse old_course=courses[rn];
 	new_course=reinterpret_cast<onecourse*>(getcoursedata(temp));
 	new_course->course_name=old_course.course_name;
+	new_course->dist_to_finish=old_course.dist_to_finish;
 	int cpn=0;
 	unsigned int i=0;
 	while (i<old_course.coursecp.size())

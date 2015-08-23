@@ -63,6 +63,8 @@ private:
 
 	cp_label x_label;
 	cp_edit x_edit;
+	QLabel* lb_to_finish;
+	QLineEdit* ed_to_finish;
 	bool react_to_changes;
 	QPushButton* x_button;
 	Object* temp;
