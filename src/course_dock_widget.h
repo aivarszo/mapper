@@ -154,6 +154,7 @@ private:
 	void selcourseeditnewpoint(int rn);
 	void* getcoursedata(Object *temp);
 	void coursereplace(int rn, Object* temp);
+	void adjustcps(int rn);
 };
 
 #endif

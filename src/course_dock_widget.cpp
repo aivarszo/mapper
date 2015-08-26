@@ -187,7 +187,6 @@ void courseWidget::coursedeleted()
 	for (int i=0; i<getNumcourses(); i++)
 	{
 		if(map->getPart(0)->findObjectIndex(getcourse(i))==-1)
-	//	if(course_table->item(course_table->currentRow(),0)->checkState())
 		{
 			removecourse(i);
 			course_table->removeRow(i);
@@ -198,11 +197,26 @@ void courseWidget::coursedeleted()
 
 void courseWidget::courseselchanged()
 {
-	for (int i=0; i<getNumcourses(); i++)
+	if (map->getNumSelectedObjects()==2)
 	{
-		if (map->getFirstSelectedObject()==getcourse(i))
+		Map::ObjectSelection::iterator obj = map->selectedObjectsBegin();
+		Map::ObjectSelection::iterator end = map->selectedObjectsEnd();
+		MapPart* part = map->getCurrentPart();
+		int index = part->findObjectIndex(*obj);
+		part->getObject(index)->setSymbol(getSymbolByTextNumber("799.1"),false);
+		obj++;
+		index = part->findObjectIndex(*obj);
+		part->getObject(index)->setSymbol(getSymbolByTextNumber("799.2"),false);
+		map->setObjectsDirty();
+	}
+	if (map->getNumSelectedObjects()==1)
+	{
+		for (int i=0; i<getNumcourses(); i++)
 		{
-			course_table->selectRow(i);
+			if (map->getFirstSelectedObject()==getcourse(i))
+			{
+				course_table->selectRow(i);
+			}
 		}
 	}
 }
@@ -220,6 +234,40 @@ void courseWidget::selcourseedittext(int rn, int cn)
 	setcontrolpointstext(QString("cp_y"),QString::number(selsym->getRawCoordinateVector().at(0).nativeY()),rn,cn);
 }
 
+void courseWidget::adjustcps(int rn)
+{
+	cpVector* av=reinterpret_cast<cpVector*>(getcontrolpoints(rn));
+	cpVector* bv;
+	for(int j=0; j<av->size(); j++)
+	{
+		for(int k=0; k<getNumcourses();k++)
+		{
+			if (rn!=k)
+			{
+				bv=reinterpret_cast<cpVector*>(getcontrolpoints(k));
+				for(unsigned int kk=0;kk<bv->size();kk++)
+				{
+					c_point* hh=bv->at(kk);
+					c_point* hh1=av->at(j);
+					MapCoord ccc1=MapCoord();
+					ccc1.setNativeX(hh1->value("cr_x").toInt());
+					ccc1.setNativeY(hh1->value("cr_y").toInt());
+					MapCoord ccc=MapCoord();
+					ccc.setNativeX(hh->value("cr_x").toInt());
+					ccc.setNativeY(hh->value("cr_y").toInt());
+					ccc.setDashPoint(true);
+					if(ccc.distanceTo(ccc1)<3 && ccc.distanceTo(ccc1)>0)
+					{
+						courses[rn].control_points->erase(courses[rn].control_points->begin()+j);
+						courses[rn].control_points->insert(courses[rn].control_points->begin()+j,courses[k].control_points->at(kk));
+						getcourse(rn)->asPath()->setCoordinate(j,ccc);
+					}
+				}
+			}
+		}
+	}
+}
+
 void courseWidget::selcourseeditpoint(int rn)
 {
 	Object *selsym=map->getFirstSelectedObject();
@@ -232,30 +280,10 @@ void courseWidget::selcourseeditpoint(int rn)
 			setcontrolpointstext(QString("cp_y"),QString::number(mv.at(j).nativeY()-10000),rn,j);
 			setcontrolpointstext(QString("cr_x"),QString::number(mv.at(j).nativeX()),rn,j);
 			setcontrolpointstext(QString("cr_y"),QString::number(mv.at(j).nativeY()),rn,j);
-			for(int k=0; k<getNumcourses();k++)
-			{
-				if (selsym!=getcourse(k))
-				{
-					for(unsigned int kk=0;kk<reinterpret_cast<cpVector*>(getcontrolpoints(k))->size();kk++)
-					{
-						c_point* hh=reinterpret_cast<cpVector*>(getcontrolpoints(k))->at(kk);
-						if((abs(hh->value("cr_x").toInt() - mv.at(j).nativeX())<2000) && \
-								(abs(hh->value("cr_y").toInt() - mv.at(j).nativeY())<2000))
-						{
-							courses[rn].control_points->erase(courses[rn].control_points->begin()+j);
-							courses[rn].control_points->insert(courses[rn].control_points->begin()+j,courses[k].control_points->at(kk));
-							MapCoord ccc=MapCoord();
-							ccc.setNativeX(hh->value("cr_x").toInt());
-							ccc.setNativeY(hh->value("cr_y").toInt());
-							ccc.setDashPoint(true);
-							selsym->asPath()->setCoordinate(j,ccc);
-						}
-					}
-				}
-			}
 		}
 	}
 	updateRow(rn);
+	adjustcps(rn);
 }
 
 void courseWidget::selcourseeditnewpoint(int rn)
