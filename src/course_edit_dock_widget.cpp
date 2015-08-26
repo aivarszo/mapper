@@ -83,7 +83,7 @@ courseEditDockWidget::courseEditDockWidget(int rn, courseWidget* temp, MapEditor
 	cp_edit_field->addLayout(layout);
 
 	QGridLayout* flayout = new QGridLayout();
-	lb_to_finish=new QLabel(tr("Distance to fininsh:"));
+	lb_to_finish=new QLabel(tr("Last control to finish:"));
 	ed_to_finish=new QLineEdit(cw->getdisttofinish(rownum));
 	flayout->addWidget(lb_to_finish, 0, 0);
 	flayout->addWidget(ed_to_finish, 1, 0);

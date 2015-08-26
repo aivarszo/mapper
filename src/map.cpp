@@ -1048,6 +1048,7 @@ void Map::deleteSelectedObjects()
 			{
 				undo_step->addObject(index, *obj);
 				part->deleteObject(index, true);
+				emit objectDeleted();
 			}
 			else
 			{
@@ -2135,7 +2136,9 @@ void Map::deleteObject(Object* object, bool remove_only)
 	for (MapPart* part : parts)
 	{
 		if (part->deleteObject(object, remove_only))
+		{
 			return;
+		}
 	}
 	
 	qCritical().nospace() << this << "::deleteObject(" << object << "," << remove_only << "): Object not found. This is a bug.";

@@ -51,8 +51,8 @@ public:
 
 	typedef struct
 	{
-		Object* course;				// map object pointer (799)
-		courseVector coursecp;		// map object pointers (703)
+		courseVector course;		// course objects (799, etc.)
+		courseVector coursecp;		// map object pointers for controlnumbers (703)
 		cpVector* control_points;	// controls info
 		QString course_name;
 		QString dist_to_finish;		// distance to finish from last control
@@ -69,8 +69,8 @@ public:
 	void setcontrolpoints(cpVector* temp, int pos);
 	inline QString getcoursename(int i) {return courses[i].course_name;}
 	inline void setcoursename(QString c_name,int i) {courses[i].course_name=c_name;}
-	inline Object* getcourse(int i) {if (i>=0) return courses[i].course; else return NULL;}
-	inline const Object* getcourse(int i) const {if (i>=0) return courses[i].course; else return NULL;}
+	inline Object* getcourse(int i) {if (i>=0) return courses[i].course.at(0); else return NULL;}
+	inline const Object* getcourse(int i) const {if (i>=0) return courses[i].course.at(0); else return NULL;}
 	inline int getNumcourses() const {return courses.size();}
 	inline int getNumcoursecp(int i) const {return courses[i].coursecp.size();}
 	inline void setdisttofinish(QString dtf, int cn) {courses[cn].dist_to_finish=dtf;}
@@ -107,6 +107,7 @@ protected slots:
 	void selcoursechanged();
 	void opencourseClicked();
 	void savecourseClicked();
+	void coursedeleted();
 
 private:
 

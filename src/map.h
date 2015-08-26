@@ -1268,6 +1268,8 @@ signals:
 	 */
 	void selectedObjectEdited();
 
+	void objectDeleted();
+
 	
 	/**
 	 * Emitted when the map part currently used for drawing changes.

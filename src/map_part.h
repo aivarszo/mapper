@@ -224,7 +224,7 @@ public:
 	 */
 	template<typename Operation>
 	bool applyOnAllObjects(Operation& operation);
-	
+
 private:
 	typedef std::vector<Object*> ObjectList;
 

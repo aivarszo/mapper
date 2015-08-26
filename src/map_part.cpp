@@ -149,7 +149,7 @@ int MapPart::findObjectIndex(const Object* object) const
 		if (objects[i] == object)
 			return i;
 	}
-	Q_ASSERT(false);
+//	Q_ASSERT(false);
 	return -1;
 }
 
