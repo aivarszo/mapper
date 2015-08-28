@@ -108,17 +108,7 @@ void courseEditDockWidget::set_cd_icon()
 	QString cd_k=cw->xml_names[cd_n];
 	reinterpret_cast<QToolButton*>(sender())->setIcon(QPixmap::fromImage(controller->activeSymbol()->getIcon(controller->getMap(),false).copy()));
 	QString cd_v=controller->activeSymbol()->getNumberAsString();
-	for(int i=0; i<cw->getNumcourses(); i++)
-	{
-		for(int j=0; j<cw->getNumcoursecp(i); j++)
-		{
-			if(reinterpret_cast<courseWidget::cpVector*>(cw->getcontrolpoints(i))->at(j)->value("cp_cod")==x_edit[cp_row+1]->text() \
-			   && (x_edit[cp_row+1]->text()!=QString("0")))
-			{
-				cw->setcontrolpointstext(cd_k,cd_v,i,j);
-			}
-		}
-	}
+	cw->setcontrolpointstext(cd_k,cd_v,rownum,cp_row);
 }
 
 bool courseEditDockWidget::event(QEvent* event)
@@ -170,6 +160,27 @@ void courseEditDockWidget::savecourse()
 		{
 			cw->setcontrolpointstext("cp_cod",QString(x_edit[ccp]->text()),rownum,i-1);
 			ccp++;
+		}
+	}
+	for (int i=0; i<cw->getNumcourses(); i++)
+	{
+		if (i!=rownum)
+		{
+			courseWidget::cpVector* ss1=reinterpret_cast<courseWidget::cpVector*>(cw->getcontrolpoints(i));
+			for (int j=0; j<ss1->size(); j++)
+			{
+				for (int k=0; k<ss->size(); k++)
+				{
+					if(ss->at(k)->value("cr_x")==ss1->at(j)->value("cr_x") \
+						&&(ss->at(k)->value("cr_y")==ss1->at(j)->value("cr_y")))
+					{
+						for(int kk=0;kk<6;kk++)
+						{
+							cw->setcontrolpointstext(cw->xml_names[kk],ss1->at(j)->value(cw->xml_names[kk]),i,j);
+						}
+					}
+				}
+			}
 		}
 	}
 	cw->updateRow(rownum);

@@ -186,7 +186,8 @@ void courseWidget::coursedeleted()
 {
 	for (int i=0; i<getNumcourses(); i++)
 	{
-		if(map->getPart(0)->findObjectIndex(getcourse(i))==-1)
+		if((map->getPart(0)->findObjectIndex(getcourse(i))==-1)&&
+			(course_table->item(i, 0)->checkState() == Qt::Checked))
 		{
 			removecourse(i);
 			course_table->removeRow(i);
@@ -203,11 +204,25 @@ void courseWidget::courseselchanged()
 		Map::ObjectSelection::iterator end = map->selectedObjectsEnd();
 		MapPart* part = map->getCurrentPart();
 		int index = part->findObjectIndex(*obj);
-		part->getObject(index)->setSymbol(getSymbolByTextNumber("799.1"),false);
 		obj++;
-		index = part->findObjectIndex(*obj);
-		part->getObject(index)->setSymbol(getSymbolByTextNumber("799.2"),false);
-		map->setObjectsDirty();
+		int index1 = part->findObjectIndex(*obj);
+		QString nss=part->getObject(index)->getSymbol()->getNumberAsString();
+		QString nss1=part->getObject(index1)->getSymbol()->getNumberAsString();
+		if(nss=="799")
+		{
+			part->getObject(index)->setSymbol(getSymbolByTextNumber("799.1"),false);
+			part->getObject(index1)->setSymbol(getSymbolByTextNumber("799.2"),false);
+		}
+		else if (nss=="799.1")
+		{
+			part->getObject(index)->setSymbol(getSymbolByTextNumber("799.1"),false);
+			part->getObject(index1)->setSymbol(getSymbolByTextNumber("799.3"),false);
+		}
+		else if (nss=="799.2")
+		{
+			part->getObject(index)->setSymbol(getSymbolByTextNumber("799.3"),false);
+			part->getObject(index1)->setSymbol(getSymbolByTextNumber("799.2"),false);
+		}
 	}
 	if (map->getNumSelectedObjects()==1)
 	{
@@ -593,7 +608,7 @@ void courseWidget::deletecourse()
 	{
 		int rownum = course_table->currentRow();
 
-		map->clearObjectSelection(false);
+//		map->clearObjectSelection(false);
 		Object *dc=getcourse(rownum);
 
 		removecourse(rownum);
