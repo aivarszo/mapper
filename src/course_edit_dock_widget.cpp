@@ -44,6 +44,10 @@ courseEditDockWidget::courseEditDockWidget(int rn, courseWidget* temp, MapEditor
 	x_edit.push_back(new QLineEdit(cw->getcoursename(rownum)));
 	mlayout->addWidget(x_label[0], 0, 0);
 	mlayout->addWidget(x_edit[0], 0, 1);
+	lb_groups=new QLabel(tr("groups"));
+	ed_groups=new QLineEdit(cw->getgroupsname(rownum));
+	mlayout->addWidget(lb_groups, 1, 0);
+	mlayout->addWidget(ed_groups, 1, 1);
 	cp_edit_field->addLayout(mlayout);
 	int ccp=0;
 	int nextcol=0;
@@ -153,6 +157,7 @@ void courseEditDockWidget::savecourse()
 	courseWidget::cpVector* ss=reinterpret_cast<courseWidget::cpVector*>(cw->getcontrolpoints(rownum));
 	cw->setcoursename(QString(x_edit[0]->text()),rownum);
 	cw->setdisttofinish(QString(ed_to_finish->text()),rownum);
+	cw->setgroupsname(QString(ed_groups->text()),rownum);
 	int ccp=1;
 	for (unsigned int i=1; i<ss->size(); i++)
 	{

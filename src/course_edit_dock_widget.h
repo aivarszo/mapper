@@ -41,16 +41,11 @@ Q_OBJECT
 public:
 	courseEditDockWidget(int rn, courseWidget* temp, MapEditorController* controller, QWidget* parent = NULL);
 	
-//	void updateValues();
-	
 	virtual bool event(QEvent* event);
 	virtual void closeEvent(QCloseEvent* event);
 	QToolButton* newToolButton(int cp_num, int cr_num, const QIcon& icon, const QString& text);
 
 public slots:
-//	void courseChanged(int index, const course* temp);
-//	void courseDeleted(int index, const course* temp);
-//	void valueChanged();
 	void savecourse();
 	void set_cd_icon();
 
@@ -63,6 +58,8 @@ private:
 
 	cp_label x_label;
 	cp_edit x_edit;
+	QLabel* lb_groups;
+	QLineEdit* ed_groups;
 	QLabel* lb_to_finish;
 	QLineEdit* ed_to_finish;
 	bool react_to_changes;

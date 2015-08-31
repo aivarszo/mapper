@@ -54,6 +54,7 @@ public:
 		courseVector course;		// course objects (799, etc.)
 		courseVector coursecp;		// map object pointers for controlnumbers (703)
 		cpVector* control_points;	// controls info
+		QString groups;				// competition groups
 		QString course_name;
 		QString dist_to_finish;		// distance to finish from last control
 	} onecourse;
@@ -75,6 +76,8 @@ public:
 	inline int getNumcoursecp(int i) const {return courses[i].coursecp.size();}
 	inline void setdisttofinish(QString dtf, int cn) {courses[cn].dist_to_finish=dtf;}
 	inline QString getdisttofinish(int cn) {return courses[cn].dist_to_finish;}
+	inline QString getgroupsname(int cn) {return courses[cn].groups;}
+	inline void setgroupsname(QString grp, int cn) {courses[cn].groups=grp;}
 
 protected:
 	/**
@@ -141,7 +144,7 @@ private:
 
 	//Courses
 	void courseadd(Object* temp);
-	void addcoursefromfile(cpVector* temp, QString c_name, QString dtf);
+	void addcoursefromfile(cpVector* temp, QString c_name, QString dtf, QString grp);
 	void removecourse(int pos);
 	void setcourse(Object* temp, int pos);
 	int findcourseIndex(const Object* temp) const;
