@@ -22,7 +22,10 @@
 #define _OPENORIENTEERING_COURSE_DOCK_WIDGET_H_
 
 #define C_TEXT "703"
+#define C_STRT "701.0"
+#define C_CIRC "702.0"
 #define C_LINE "799"
+#define C_FIN "706.0"
 #define CD_BLANK "18.1"
 #define CD_CORN "720.0"
 
@@ -132,6 +135,7 @@ private:
 	QToolButton* insert_cp_on_map_button;
 	QToolButton* insert_cpc_on_map_button;
 	QToolButton* insert_cpboth_on_map_button;
+	QToolButton* insert_cpcirc_on_map_button;
 	QToolButton* clear_cp_button;
 	QToolButton* cp_descr_button;
 	QToolButton* edit_button;

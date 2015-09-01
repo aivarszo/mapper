@@ -159,11 +159,11 @@ void courseEditDockWidget::savecourse()
 	cw->setdisttofinish(QString(ed_to_finish->text()),rownum);
 	cw->setgroupsname(QString(ed_groups->text()),rownum);
 	int ccp=1;
-	for (unsigned int i=1; i<ss->size(); i++)
+	for (unsigned int i=0; i<ss->size(); i++)
 	{
-		if(cw->getcourse(rownum)->asPath()->getCoordinate(i-1).isDashPoint())
+		if(!cw->getcourse(rownum)->asPath()->isCurveHandle(i))
 		{
-			cw->setcontrolpointstext("cp_cod",QString(x_edit[ccp]->text()),rownum,i-1);
+			cw->setcontrolpointstext("cp_cod",QString(x_edit[ccp]->text()),rownum,i);
 			ccp++;
 		}
 	}
@@ -181,8 +181,9 @@ void courseEditDockWidget::savecourse()
 					{
 						for(int kk=0;kk<6;kk++)
 						{
-							cw->setcontrolpointstext(cw->xml_names[kk],ss1->at(j)->value(cw->xml_names[kk]),i,j);
+							cw->setcontrolpointstext(cw->xml_names[kk],ss->at(k)->value(cw->xml_names[kk]),i,j);
 						}
+						cw->setcontrolpointstext("cp_cod",ss->at(k)->value("cp_cod"),i,j);
 					}
 				}
 			}

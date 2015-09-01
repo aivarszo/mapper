@@ -106,8 +106,11 @@ courseWidget::courseWidget(Map* map, MapView* main_view, MapEditorController* co
 	insert_cpc_on_map_button->setProperty("name",2);
 	insert_cpboth_on_map_button = newToolButton(QIcon(":/images/insert-cp-numcod.png"), tr("Show both"));
 	insert_cpboth_on_map_button->setProperty("name",3);
+	insert_cpcirc_on_map_button = newToolButton(QIcon(":/images/insert-cp-circ.png"), tr("Show circles"));
+	insert_cpcirc_on_map_button->setProperty("name",4);
 	clear_cp_button = newToolButton(QIcon(":/images/clear-cp.png"), tr("Clear CPs"));
 	cp_descr_button = newToolButton(QIcon(":/images/cp_descr.png"), tr("Show CP descriptions"));
+	button_layout->addWidget(insert_cpcirc_on_map_button);
 	button_layout->addWidget(insert_cp_on_map_button);
 	button_layout->addWidget(insert_cpc_on_map_button);
 	button_layout->addWidget(insert_cpboth_on_map_button);
@@ -158,6 +161,7 @@ courseWidget::courseWidget(Map* map, MapView* main_view, MapEditorController* co
 	courseWidget::connect(insert_cp_on_map_button, &QToolButton::clicked,this,&courseWidget::insertcp);
 	courseWidget::connect(insert_cpc_on_map_button, &QToolButton::clicked,this,&courseWidget::insertcp);
 	courseWidget::connect(insert_cpboth_on_map_button, &QToolButton::clicked,this,&courseWidget::insertcp);
+	courseWidget::connect(insert_cpcirc_on_map_button, &QToolButton::clicked,this,&courseWidget::insertcp);
 	courseWidget::connect(clear_cp_button, &QToolButton::clicked,this,&courseWidget::clearcp);
 	courseWidget::connect(cp_descr_button, &QToolButton::clicked,this,&courseWidget::cpdescr);
 
@@ -507,11 +511,22 @@ void courseWidget::insertcp()
 	if (getcoursecp(i,0)==NULL)
 	{
 		Symbol* ns=getSymbolByTextNumber(QString(C_TEXT));
+		PointObject* po;
 		int n_cp=0;
 		for (unsigned int j=0; j<getcourse(i)->getRawCoordinateVector().size(); j++)
 		{
-			if(!getcourse(i)->asPath()->isCurveHandle(j))
-			{
+				if(j==getcourse(i)->getRawCoordinateVector().size()-1)
+				{
+					po=new PointObject(getSymbolByTextNumber(C_FIN));
+				}
+				if(j==0)
+				{
+					po=new PointObject(getSymbolByTextNumber(C_STRT));
+				}
+				if((j>0)&&(j<getcourse(i)->getRawCoordinateVector().size()-1))
+				{
+					po=new PointObject(getSymbolByTextNumber(C_CIRC));
+				}
 				TextObject *cp_symbol=new TextObject();
 				cp_symbol->setSymbol(ns,false);
 				switch (cc)
@@ -534,11 +549,21 @@ void courseWidget::insertcp()
 										  courses[i].control_points->at(n_cp)->value("cp_y").toInt(),
 										  10,10);
 						break;
+					case 4:
+						po->setPosition(courses[i].control_points->at(n_cp)->value("cr_x").toInt(), \
+										  courses[i].control_points->at(n_cp)->value("cr_y").toInt());
+						break;
 				}
-				map->addObject(cp_symbol);
-				setcoursecp(cp_symbol,i,n_cp);
-				n_cp++;
-			}
+				if(cc==4)
+				{
+					map->addObject(po);
+				}
+				else
+				{
+					map->addObject(cp_symbol);
+					setcoursecp(cp_symbol,i,n_cp);
+				}
+			n_cp++;
 		}
 		map->setObjectsDirty();
 	}
@@ -600,7 +625,15 @@ void courseWidget::addcourse()
 	{
 		return;
 	}
-
+	int i=0;
+	while(i<new_course->getRawCoordinateVector().size())
+	{
+		if(new_course->asPath()->isCurveHandle(i))
+		{
+			new_course->asPath()->deleteCoordinate(i,true);
+		}
+		i++;
+	}
 	courseadd(new_course);
 	addRow();
 	updateButtons();
