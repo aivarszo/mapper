@@ -58,6 +58,8 @@ private:
 
 	cp_label x_label;
 	cp_edit x_edit;
+	QLabel* lb_event;
+	QLineEdit* ed_event;
 	QLabel* lb_groups;
 	QLineEdit* ed_groups;
 	QLabel* lb_to_finish;

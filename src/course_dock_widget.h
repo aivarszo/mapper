@@ -39,9 +39,7 @@ class MapEditorController;
 class MapView;
 
 /**
- * Widget showing the list of templates, including the map layer.
- * Allows to load templates, set their view properties and reoder them,
- * and do various other actions like adjusting template positions.
+ * Widget showing courses.
  */
 class courseWidget : public QWidget
 {
@@ -59,6 +57,7 @@ public:
 		cpVector* control_points;	// controls info
 		QString groups;				// competition groups
 		QString course_name;
+		QString event_name;
 		QString dist_to_finish;		// distance to finish from last control
 	} onecourse;
 
@@ -81,6 +80,8 @@ public:
 	inline QString getdisttofinish(int cn) {return courses[cn].dist_to_finish;}
 	inline QString getgroupsname(int cn) {return courses[cn].groups;}
 	inline void setgroupsname(QString grp, int cn) {courses[cn].groups=grp;}
+	inline QString geteventname(int cn) {return courses[cn].event_name;}
+	inline void seteventname(QString evnt, int cn) {courses[cn].event_name=evnt;}
 
 protected:
 	/**
@@ -148,7 +149,7 @@ private:
 
 	//Courses
 	void courseadd(Object* temp);
-	void addcoursefromfile(cpVector* temp, QString c_name, QString dtf, QString grp);
+	void addcoursefromfile(cpVector* temp, QString c_name, QString dtf, QString grp, QString evnt);
 	void removecourse(int pos);
 	void setcourse(Object* temp, int pos);
 	int findcourseIndex(const Object* temp) const;

@@ -480,6 +480,10 @@ void courseWidget::cpdescr()
 		to->setBox(orig_rx+9*1000,orig_ry+15*1000,6,6);
 		map->addObject(to);
 		to=new TextObject(sym);
+		to->setBox(orig_rx+24*1000,orig_ry+3*1000,48,6);
+		to->setText(courses[rownum].event_name);
+		map->addObject(to);
+		to=new TextObject(sym);
 		to->setText(courses[rownum].groups);
 		to->setBox(orig_rx+24*1000,orig_ry+9*1000,6,6);
 		map->addObject(to);
@@ -828,6 +832,7 @@ void courseWidget::opencourseClicked()
 	QString course_name;
 	QString dist_to_finish;
 	QString groups;
+	QString event_name;
 
 	while (!reader.atEnd())
 	{
@@ -859,11 +864,15 @@ void courseWidget::opencourseClicked()
 		{
 			groups=reader.attributes().value("names").toString();
 		}
+		else if((reader.name() == "event") && !reader.isEndElement())
+		{
+			event_name=reader.attributes().value("name").toString();
+		}
 		else if((reader.name() == "course") && !reader.isEndElement())
 		{
 			if (t1->size()>0)
 			{
-				addcoursefromfile(t1,course_name,dist_to_finish,groups);
+				addcoursefromfile(t1,course_name,dist_to_finish,groups,event_name);
 				t1=new cpVector();
 				n_cp++;
 			}
@@ -872,7 +881,7 @@ void courseWidget::opencourseClicked()
 	}
 	reader.clear();
 	inputFile.close();
-	addcoursefromfile(t1, course_name, dist_to_finish,groups);
+	addcoursefromfile(t1, course_name, dist_to_finish,groups,event_name);
 }
 
 void courseWidget::savecourseClicked()
@@ -931,6 +940,9 @@ void courseWidget::savecourseClicked()
 			writer.writeEndElement();
 			writer.writeStartElement("groups");
 			writer.writeAttribute(QString("names"), courses[i].groups);
+			writer.writeEndElement();
+			writer.writeStartElement("event");
+			writer.writeAttribute(QString("name"), courses[i].event_name);
 			writer.writeEndElement();
 		}
 		writer.writeEndElement();
@@ -1009,7 +1021,7 @@ Symbol* courseWidget::getSymbolByTextNumber(QString ts)
 	return sym;
 }
 
-void courseWidget::addcoursefromfile(cpVector* temp, QString c_name, QString dtf, QString grp)
+void courseWidget::addcoursefromfile(cpVector* temp, QString c_name, QString dtf, QString grp, QString evnt)
 {
 	MapCoord mc;
 	onecourse new_course;
@@ -1017,6 +1029,7 @@ void courseWidget::addcoursefromfile(cpVector* temp, QString c_name, QString dtf
 	new_course.course_name=c_name;
 	new_course.dist_to_finish=dtf;
 	new_course.groups=grp;
+	new_course.event_name=evnt;
 	Symbol* csym=getSymbolByTextNumber(C_LINE);
 	PathObject* new_course_obj=new PathObject();
 	new_course_obj->setSymbol(csym,true);
@@ -1040,9 +1053,10 @@ void* courseWidget::getcoursedata(Object* temp)
 	onecourse* new_course=new onecourse;
 	cpVector* ss=new cpVector();
 	c_point* s1;
-	new_course->course_name=QString(tr("- new -"));
+	new_course->course_name=QString(tr("- new course -"));
 	new_course->dist_to_finish=QString("0");
 	new_course->groups=QString(tr("M,W"));
+	new_course->event_name=QString(tr("- new event -"));
 	for(unsigned int i=0; i < (temp->asPath()->getCoordinateCount()); i++)
 	{
 		s1=new c_point();
@@ -1079,6 +1093,7 @@ void courseWidget::coursereplace(int rn, Object* temp)
 	new_course->course_name=old_course.course_name;
 	new_course->dist_to_finish=old_course.dist_to_finish;
 	new_course->groups=old_course.groups;
+	new_course->event_name=old_course.event_name;
 	int cpn=0;
 	unsigned int i=0;
 	while (i<old_course.coursecp.size())
