@@ -468,6 +468,13 @@ void courseWidget::cpdescr()
 					po->setPosition(orig_rx+(k*6+15)*1000,i*6000+orig_ry+21*1000);
 					map->addObject(po);
 				}
+				if (sym1->getType()==Symbol::Text)
+				{
+					to=new TextObject(sym1);
+					to->setBox(orig_rx+(k*6+15)*1000,i*6000+orig_ry+21*1000,6,6);
+					to->setText(sym1->asText()->getIconText());
+					map->addObject(to);
+				}
 			}
 		}
 		sym=getSymbolByTextNumber("17.4");
